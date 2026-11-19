@@ -1,12 +1,15 @@
 mod input;
 mod permissions;
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Mutex;
 
+use serde::Serialize;
 use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{Emitter, Manager, PhysicalPosition};
+
+static LISTENER_STARTED: AtomicBool = AtomicBool::new(false);
 
 #[derive(Default)]
 struct AppState {
@@ -15,6 +18,58 @@ struct AppState {
 
 #[derive(Default)]
 struct LatencySamples(Mutex<Vec<u64>>);
+
+#[derive(Serialize)]
+struct PermissionStatus {
+    accessibility: bool,
+    input_monitoring: bool,
+}
+
+fn permission_status() -> PermissionStatus {
+    PermissionStatus {
+        accessibility: permissions::is_trusted(),
+        input_monitoring: permissions::listen_access(),
+    }
+}
+
+fn log_permission_status(status: &PermissionStatus) {
+    static LAST: AtomicU8 = AtomicU8::new(255);
+    let code = status.accessibility as u8 | ((status.input_monitoring as u8) << 1);
+    if LAST.swap(code, Ordering::Relaxed) != code {
+        eprintln!(
+            "[permissions] accessibility={} input_monitoring={}",
+            status.accessibility, status.input_monitoring
+        );
+    }
+}
+
+fn ensure_input_listener(app: &tauri::AppHandle) {
+    if !permissions::input_ready() || LISTENER_STARTED.swap(true, Ordering::Relaxed) {
+        return;
+    }
+    eprintln!("[input] starting global listener");
+    input::spawn_listener(app.clone());
+}
+
+#[tauri::command]
+fn check_permissions(app: tauri::AppHandle) -> PermissionStatus {
+    let status = permission_status();
+    log_permission_status(&status);
+    ensure_input_listener(&app);
+    status
+}
+
+#[tauri::command]
+fn request_input_monitoring(app: tauri::AppHandle) -> bool {
+    let granted = permissions::request_listen_access();
+    if granted {
+        ensure_input_listener(&app);
+    } else {
+        permissions::open_input_monitoring_settings();
+    }
+    log_permission_status(&permission_status());
+    granted
+}
 
 #[tauri::command]
 fn report_latency(ms: u64, samples: tauri::State<LatencySamples>) {
@@ -34,16 +89,6 @@ fn report_latency(ms: u64, samples: tauri::State<LatencySamples>) {
     }
 }
 
-#[tauri::command]
-fn check_accessibility() -> bool {
-    permissions::is_trusted()
-}
-
-#[tauri::command]
-fn open_accessibility_settings() {
-    permissions::open_settings();
-}
-
 fn set_click_through_enabled(app: &tauri::AppHandle, enabled: bool) {
     let state = app.state::<AppState>();
     state.click_through.store(enabled, Ordering::Relaxed);
@@ -61,11 +106,14 @@ pub fn run() {
         .setup(|app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+            eprintln!("[app] exe={:?}", std::env::current_exe().ok());
+            log_permission_status(&permission_status());
+
             #[cfg(target_os = "macos")]
-            eprintln!(
-                "[permissions] accessibility trusted: {}",
-                permissions::is_trusted()
-            );
+            if !permissions::listen_access() {
+                permissions::request_listen_access();
+            }
 
             let click_through_item = CheckMenuItem::with_id(
                 app,
@@ -91,7 +139,10 @@ pub fn run() {
                 .show_menu_on_left_click(true)
                 .on_menu_event(move |app, event| match event.id().as_ref() {
                     "click_through" => {
-                        let enabled = !app.state::<AppState>().click_through.load(Ordering::Relaxed);
+                        let enabled = !app
+                            .state::<AppState>()
+                            .click_through
+                            .load(Ordering::Relaxed);
                         set_click_through_enabled(app, enabled);
                         let _ = click_through_for_menu.set_checked(enabled);
                     }
@@ -120,12 +171,12 @@ pub fn run() {
                 }
             }
 
-            input::spawn_listener(app.handle().clone());
+            ensure_input_listener(app.handle());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            check_accessibility,
-            open_accessibility_settings,
+            check_permissions,
+            request_input_monitoring,
             report_latency
         ])
         .run(tauri::generate_context!())

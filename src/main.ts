@@ -87,19 +87,25 @@ window.setInterval(() => {
   }
 }, 1000);
 
+type PermissionStatus = {
+  accessibility: boolean;
+  input_monitoring: boolean;
+};
+
 async function refreshPermission() {
   if (!isTauri) {
     return;
   }
   try {
-    const trusted = await invoke<boolean>("check_accessibility");
-    banner.hidden = trusted;
-    if (trusted && permissionTimer !== undefined) {
+    const status = await invoke<PermissionStatus>("check_permissions");
+    const missing = !status.input_monitoring;
+    banner.hidden = !missing;
+    if (!missing && permissionTimer !== undefined) {
       window.clearInterval(permissionTimer);
       permissionTimer = undefined;
     }
   } catch (error) {
-    console.warn("accessibility check failed", error);
+    console.warn("permission check failed", error);
   }
 }
 
@@ -122,7 +128,7 @@ if (isTauri) {
   });
 
   bannerBtn.addEventListener("click", () => {
-    void invoke("open_accessibility_settings");
+    void invoke("request_input_monitoring");
   });
 
   void refreshPermission();
