@@ -11,93 +11,163 @@
   <body>
     <main id="pet" data-tauri-drag-region>
       <div id="stage" aria-hidden="true">
-        <div id="bunny-wrap">
-          <svg id="bunny" viewBox="0 0 260 320" xmlns="http://www.w3.org/2000/svg">
-            <!-- soft shadow under the desk -->
-            <ellipse cx="130" cy="314" rx="100" ry="5" fill="rgba(60, 40, 30, 0.10)" />
+        <div id="pet-wrap">
+          <svg id="pet-art" viewBox="0 0 260 320" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <mask id="tail-dot-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="320">
+                <path
+                  d="M184 243 A98 98 0 1 0 80 243"
+                  fill="none"
+                  stroke="#FFFFFF"
+                  stroke-width="30"
+                  stroke-linecap="round"
+                />
+              </mask>
+            </defs>
 
-            <g id="bunny-head">
-              <!-- ears -->
-              <g class="ear ear-left">
-                <ellipse cx="99" cy="70" rx="17" ry="52" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
-                <ellipse cx="99" cy="68" rx="7" ry="33" fill="#FFC1CF" />
-              </g>
-              <g class="ear ear-right">
-                <ellipse cx="161" cy="70" rx="17" ry="52" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
-                <ellipse cx="161" cy="68" rx="7" ry="33" fill="#FFC1CF" />
-              </g>
+            <ellipse cx="128" cy="302" rx="72" ry="5" fill="rgba(40, 30, 25, 0.08)" />
 
-              <!-- head -->
-              <ellipse cx="130" cy="180" rx="68" ry="64" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
-
-              <!-- face -->
-              <g id="eyes">
-                <ellipse cx="104" cy="174" rx="7" ry="9" fill="#3A2C27" />
-                <ellipse cx="156" cy="174" rx="7" ry="9" fill="#3A2C27" />
-                <circle cx="106.5" cy="171" r="2.1" fill="#FFFFFF" />
-                <circle cx="158.5" cy="171" r="2.1" fill="#FFFFFF" />
-              </g>
-              <ellipse cx="82" cy="196" rx="12" ry="6.5" fill="#FFC1CF" opacity="0.75" />
-              <ellipse cx="178" cy="196" rx="12" ry="6.5" fill="#FFC1CF" opacity="0.75" />
-              <path d="M124 189 L136 189 L130 195 Z" fill="#F19AAE" />
+            <!-- curled tail loop with halftone dots -->
+            <g id="tail-loop" transform="rotate(-8 132 160)">
               <path
-                d="M130 195 q0 8 -10 8 M130 195 q0 8 10 8"
+                d="M184 243 A98 98 0 1 0 80 243"
                 fill="none"
-                stroke="#4A3B36"
-                stroke-width="3"
+                stroke="#241F1E"
+                stroke-width="46"
                 stroke-linecap="round"
               />
-              <g stroke="#4A3B36" stroke-width="2.5" stroke-linecap="round" opacity="0.55">
-                <path d="M70 188 L52 184" />
-                <path d="M70 197 L52 200" />
-                <path d="M190 188 L208 184" />
-                <path d="M190 197 L208 200" />
+              <path
+                d="M184 243 A98 98 0 1 0 80 243"
+                fill="none"
+                stroke="#FFFFFF"
+                stroke-width="33"
+                stroke-linecap="round"
+              />
+              <g mask="url(#tail-dot-mask)" fill="#241F1E">
+                <circle cx="33" cy="124" r="5.5" />
+                <circle cx="53" cy="105" r="3.5" />
+                <circle cx="45" cy="92" r="6" />
+                <circle cx="68" cy="84" r="4.5" />
+                <circle cx="86" cy="62" r="5" />
+                <circle cx="112" cy="64" r="3.2" />
+                <circle cx="116" cy="49" r="6.2" />
+                <circle cx="132" cy="68" r="4" />
+                <circle cx="150" cy="57" r="6.5" />
+                <circle cx="158" cy="70" r="3" />
+                <circle cx="180" cy="61" r="5.2" />
+                <circle cx="188" cy="81" r="3.8" />
+                <circle cx="200" cy="79" r="6" />
+                <circle cx="206" cy="98" r="4" />
+                <circle cx="226" cy="106" r="5.5" />
+                <circle cx="224" cy="127" r="3.2" />
+                <circle cx="238" cy="132" r="6" />
+                <circle cx="231" cy="151" r="4" />
+                <circle cx="238" cy="179" r="5.2" />
+                <circle cx="223" cy="193" r="3.5" />
+                <circle cx="226" cy="214" r="5.8" />
+                <circle cx="206" cy="222" r="3.2" />
               </g>
             </g>
 
-            <!-- desk -->
-            <rect x="14" y="236" width="232" height="72" rx="14" fill="#F0C9A2" stroke="#4A3B36" stroke-width="5" />
-            <rect x="24" y="243" width="212" height="9" rx="4.5" fill="#FFFFFF" opacity="0.35" />
+            <!-- body and feet -->
+            <path
+              id="pet-body"
+              d="M106 174 C94 186 88 204 90 222 C92 238 88 252 80 262 C74 270 76 288 86 288 C90 295 98 295 101 289 C106 295 114 295 116 288 C122 295 130 295 132 288 C138 295 146 294 148 287 C154 292 161 287 162 279 C166 258 165 244 161 232 C168 212 167 192 156 178 Z"
+              fill="#FFFFFF"
+              stroke="#241F1E"
+              stroke-width="6"
+              stroke-linejoin="round"
+            />
 
-            <!-- keyboard -->
-            <rect x="52" y="250" width="156" height="46" rx="10" fill="#FFF9F2" stroke="#4A3B36" stroke-width="4" />
-            <g fill="#EED5BF">
-              <rect x="64" y="258" width="16" height="9" rx="3" />
-              <rect x="84" y="258" width="16" height="9" rx="3" />
-              <rect x="104" y="258" width="16" height="9" rx="3" />
-              <rect x="124" y="258" width="16" height="9" rx="3" />
-              <rect x="144" y="258" width="16" height="9" rx="3" />
-              <rect x="164" y="258" width="16" height="9" rx="3" />
-              <rect x="184" y="258" width="16" height="9" rx="3" />
-              <rect x="74" y="272" width="16" height="9" rx="3" />
-              <rect x="94" y="272" width="16" height="9" rx="3" />
-              <rect x="114" y="272" width="16" height="9" rx="3" />
-              <rect x="134" y="272" width="16" height="9" rx="3" />
-              <rect x="154" y="272" width="16" height="9" rx="3" />
-              <rect x="174" y="272" width="16" height="9" rx="3" />
-              <rect x="94" y="286" width="72" height="8" rx="3" />
-            </g>
-
-            <!-- round hands on the keyboard -->
+            <!-- left paw -->
             <g id="paw-left" class="paw">
-              <ellipse cx="62" cy="269" rx="22" ry="21" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
-              <ellipse cx="56" cy="262" rx="7" ry="4" fill="#FFFFFF" opacity="0.5" />
+              <path
+                d="M94 246 C86 242 76 246 70 252 C65 257 62 264 64 271 C65 276 69 280 74 278 C76 283 82 285 86 281 C90 285 96 283 96 278 C99 280 102 276 101 271 C100 261 98 252 94 246 Z"
+                fill="#FFFFFF"
+                stroke="#241F1E"
+                stroke-width="5"
+                stroke-linejoin="round"
+              />
             </g>
+
+            <!-- head -->
+            <g id="pet-head" transform="rotate(-3 128 160)">
+              <path
+                d="M92 132 C84 124 78 108 78 96 C78 88 84 84 90 88 C102 96 112 106 116 116 C126 108 142 106 152 112 C160 102 168 92 176 88 C182 84 188 88 186 96 C184 108 180 120 174 130 C192 140 198 160 194 178 C190 198 178 212 162 218 C146 226 118 226 102 218 C88 210 78 194 80 176 C82 160 84 144 92 132 Z"
+                fill="#FFFFFF"
+                stroke="#241F1E"
+                stroke-width="6"
+                stroke-linejoin="round"
+              />
+              <path d="M92 110 C94 101 101 99 107 107" fill="none" stroke="#241F1E" stroke-width="3.5" stroke-linecap="round" />
+              <path d="M161 107 C165 100 169 99 172 105" fill="none" stroke="#241F1E" stroke-width="3.5" stroke-linecap="round" />
+              <g fill="none" stroke="#241F1E" stroke-width="3" stroke-linecap="round" opacity="0.85">
+                <path d="M90 187 q-8 3 -10 10" />
+                <path d="M98 190 q-7 4 -7 11" />
+              </g>
+
+              <g id="eyes">
+                <path d="M102 150 q6 6 12 0" fill="none" stroke="#241F1E" stroke-width="4.2" stroke-linecap="round" />
+                <path d="M146 150 q6 6 12 0" fill="none" stroke="#241F1E" stroke-width="4.2" stroke-linecap="round" />
+              </g>
+              <ellipse cx="128" cy="158" rx="3.2" ry="2.4" fill="#241F1E" />
+              <path
+                d="M120 164 q4 6 8 0 q4 6 8 0"
+                fill="none"
+                stroke="#241F1E"
+                stroke-width="3.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <g stroke="#241F1E" stroke-width="2.4" stroke-linecap="round" opacity="0.7">
+                <path d="M94 160 L83 155" />
+                <path d="M94 168 L83 171" />
+                <path d="M162 160 L173 155" />
+                <path d="M162 168 L173 171" />
+              </g>
+
+              <path
+                d="M110 88 L114.1 100.3 L127.2 100.8 L117.2 108.7 L120.8 121.3 L110 113.9 L99.2 121.3 L102.8 108.7 L92.8 100.8 L105.9 100.3 Z"
+                fill="#FFFFFF"
+                stroke="#241F1E"
+                stroke-width="4"
+                stroke-linejoin="round"
+              />
+              <circle cx="110" cy="105" r="4.6" fill="#2F55D4" />
+            </g>
+
+            <!-- right paw holding a blue capsule -->
             <g id="paw-right" class="paw">
-              <ellipse cx="198" cy="269" rx="22" ry="21" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
-              <ellipse cx="204" cy="262" rx="7" ry="4" fill="#FFFFFF" opacity="0.5" />
+              <rect
+                x="185"
+                y="211"
+                width="11"
+                height="31"
+                rx="5.5"
+                transform="rotate(12 190.5 226.5)"
+                fill="#2F55D4"
+                stroke="#241F1E"
+                stroke-width="4"
+              />
+              <path
+                d="M166 204 C158 206 154 214 156 222 C150 226 150 236 156 240 C162 244 170 242 172 236 C178 240 185 236 185 229 C185 219 178 210 172 207 Z"
+                fill="#FFFFFF"
+                stroke="#241F1E"
+                stroke-width="5"
+                stroke-linejoin="round"
+              />
             </g>
           </svg>
         </div>
       </div>
 
       <div id="hint" data-tauri-drag-region>
-        <span class="hint-main" data-i18n="hint.main">敲敲键盘，兔宝陪你敲</span>
+        <span class="hint-main" data-i18n="hint.main">敲敲键盘，Tappo 陪你敲</span>
       </div>
 
       <div id="banner" hidden>
         <p data-i18n="banner.message">
-          需要在「输入监控」中允许兔宝，才能感知键盘。
+          需要在「输入监控」中允许 Tappo，才能感知键盘。
         </p>
         <button id="banner-btn" type="button" data-i18n="banner.button">去开启</button>
       </div>

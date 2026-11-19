@@ -6,7 +6,7 @@ import type { Language, LanguageSetting } from "./i18n";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
 
-const wrap = document.querySelector<HTMLElement>("#bunny-wrap")!;
+const wrap = document.querySelector<HTMLElement>("#pet-wrap")!;
 const pawLeft = document.querySelector<SVGGElement>("#paw-left")!;
 const pawRight = document.querySelector<SVGGElement>("#paw-right")!;
 const hint = document.querySelector<HTMLElement>("#hint")!;

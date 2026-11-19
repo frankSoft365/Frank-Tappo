@@ -10,8 +10,8 @@ export function resolveLanguage(setting: LanguageSetting): Language {
 
 const messages: Record<Language, Record<string, string>> = {
   zh: {
-    "hint.main": "敲敲键盘，兔宝陪你敲",
-    "banner.message": "需要在「输入监控」中允许兔宝，才能感知键盘。",
+    "hint.main": "敲敲键盘，Tappo 陪你敲",
+    "banner.message": "需要在「输入监控」中允许 Tappo，才能感知键盘。",
     "banner.button": "去开启",
     "badge.clickThrough": "点击穿透",
     "settings.title": "设置",
@@ -25,8 +25,8 @@ const messages: Record<Language, Record<string, string>> = {
     "language.en": "English",
   },
   en: {
-    "hint.main": "Type anything — Bunny taps along",
-    "banner.message": "Allow Bunny in Input Monitoring so it can feel your typing.",
+    "hint.main": "Type anything — Tappo taps along",
+    "banner.message": "Allow Tappo in Input Monitoring so it can feel your typing.",
     "banner.button": "Open Settings",
     "badge.clickThrough": "Click-through",
     "settings.title": "Settings",
