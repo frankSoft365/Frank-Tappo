@@ -77,6 +77,7 @@
 - **授权生效条件澄清**：macOS 15 在进程内缓存输入监控判定，用户在系统设置里勾选后必须重启应用才生效（之前误判为 3 秒轮询即可生效）。重启后日志为 `input_monitoring=true`，CGEventTap 正常监听。
 - **签名稳定性已验证**：touch 触发重编译 + 同一证书重签 + 重启后，授权依然有效（`input_monitoring=true`），M1 迭代不再需要反复授权。
 - 新 CGEventTap 后端延迟复测：75 个样本 min 0ms / p50 1ms / p95 ≤ 2ms / max 2ms，无崩溃。
+- **release 资源复测**（`tauri build --no-bundle`，空闲 45s 后采样）：CPU ≈ 4.2%（单核），RSS ≈ 83MB。内存达标，CPU 超 0.3% 预算；空闲 CSS 动画的持续合成是主因，M1 优化。
 
 ### 待办
 
