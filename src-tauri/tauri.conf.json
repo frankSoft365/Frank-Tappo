@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "frank-tappo",
+  "productName": "Frank Tappo",
   "version": "0.1.0",
   "identifier": "com.franktappo.app",
   "build": {
@@ -10,12 +10,23 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "withGlobalTauri": true,
+    "withGlobalTauri": false,
+    "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "frank-tappo",
-        "width": 800,
-        "height": 600
+        "label": "main",
+        "title": "Frank Tappo",
+        "width": 300,
+        "height": 360,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "resizable": false,
+        "maximizable": false,
+        "minimizable": false,
+        "skipTaskbar": true,
+        "shadow": false,
+        "focus": false
       }
     ],
     "security": {

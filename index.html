@@ -1,43 +1,111 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="/src/styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
+    <title>Frank Tappo</title>
     <script type="module" src="/src/main.ts" defer></script>
   </head>
 
   <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
+    <main id="pet" data-tauri-drag-region>
+      <div id="stage" aria-hidden="true">
+        <div id="bunny-wrap">
+          <svg id="bunny" viewBox="0 0 260 320" xmlns="http://www.w3.org/2000/svg">
+            <!-- soft shadow under the desk -->
+            <ellipse cx="130" cy="314" rx="100" ry="5" fill="rgba(60, 40, 30, 0.10)" />
 
-      <div class="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
+            <g id="bunny-head">
+              <!-- ears -->
+              <g class="ear ear-left">
+                <ellipse cx="99" cy="70" rx="17" ry="52" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
+                <ellipse cx="99" cy="68" rx="7" ry="33" fill="#FFC1CF" />
+              </g>
+              <g class="ear ear-right">
+                <ellipse cx="161" cy="70" rx="17" ry="52" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
+                <ellipse cx="161" cy="68" rx="7" ry="33" fill="#FFC1CF" />
+              </g>
+
+              <!-- head -->
+              <ellipse cx="130" cy="180" rx="68" ry="64" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
+
+              <!-- face -->
+              <g id="eyes">
+                <ellipse cx="104" cy="174" rx="7" ry="9" fill="#3A2C27" />
+                <ellipse cx="156" cy="174" rx="7" ry="9" fill="#3A2C27" />
+                <circle cx="106.5" cy="171" r="2.1" fill="#FFFFFF" />
+                <circle cx="158.5" cy="171" r="2.1" fill="#FFFFFF" />
+              </g>
+              <ellipse cx="82" cy="196" rx="12" ry="6.5" fill="#FFC1CF" opacity="0.75" />
+              <ellipse cx="178" cy="196" rx="12" ry="6.5" fill="#FFC1CF" opacity="0.75" />
+              <path d="M124 189 L136 189 L130 195 Z" fill="#F19AAE" />
+              <path
+                d="M130 195 q0 8 -10 8 M130 195 q0 8 10 8"
+                fill="none"
+                stroke="#4A3B36"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+              <g stroke="#4A3B36" stroke-width="2.5" stroke-linecap="round" opacity="0.55">
+                <path d="M70 188 L52 184" />
+                <path d="M70 197 L52 200" />
+                <path d="M190 188 L208 184" />
+                <path d="M190 197 L208 200" />
+              </g>
+            </g>
+
+            <!-- desk -->
+            <rect x="14" y="236" width="232" height="72" rx="14" fill="#F0C9A2" stroke="#4A3B36" stroke-width="5" />
+            <rect x="24" y="243" width="212" height="9" rx="4.5" fill="#FFFFFF" opacity="0.35" />
+
+            <!-- keyboard -->
+            <rect x="52" y="250" width="156" height="46" rx="10" fill="#FFF9F2" stroke="#4A3B36" stroke-width="4" />
+            <g fill="#EED5BF">
+              <rect x="64" y="258" width="16" height="9" rx="3" />
+              <rect x="84" y="258" width="16" height="9" rx="3" />
+              <rect x="104" y="258" width="16" height="9" rx="3" />
+              <rect x="124" y="258" width="16" height="9" rx="3" />
+              <rect x="144" y="258" width="16" height="9" rx="3" />
+              <rect x="164" y="258" width="16" height="9" rx="3" />
+              <rect x="184" y="258" width="16" height="9" rx="3" />
+              <rect x="74" y="272" width="16" height="9" rx="3" />
+              <rect x="94" y="272" width="16" height="9" rx="3" />
+              <rect x="114" y="272" width="16" height="9" rx="3" />
+              <rect x="134" y="272" width="16" height="9" rx="3" />
+              <rect x="154" y="272" width="16" height="9" rx="3" />
+              <rect x="174" y="272" width="16" height="9" rx="3" />
+              <rect x="94" y="286" width="72" height="8" rx="3" />
+            </g>
+
+            <!-- round hands on the keyboard -->
+            <g id="paw-left" class="paw">
+              <ellipse cx="62" cy="269" rx="22" ry="21" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
+              <ellipse cx="56" cy="262" rx="7" ry="4" fill="#FFFFFF" opacity="0.5" />
+            </g>
+            <g id="paw-right" class="paw">
+              <ellipse cx="198" cy="269" rx="22" ry="21" fill="#FFF4EC" stroke="#4A3B36" stroke-width="5" />
+              <ellipse cx="204" cy="262" rx="7" ry="4" fill="#FFFFFF" opacity="0.5" />
+            </g>
+          </svg>
+        </div>
+        <div id="zzz" aria-hidden="true"><span>z</span><span>z</span><span>Z</span></div>
       </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
+      <div id="hint" data-tauri-drag-region>
+        敲敲键盘，兔宝陪你敲
+        <span>Type anything — Bunny taps along</span>
+      </div>
+
+      <div id="banner" hidden>
+        <p>
+          需要「辅助功能」权限才能感知键盘。
+          <span>Accessibility permission is needed to react to your typing.</span>
+        </p>
+        <button id="banner-btn" type="button">去开启 / Open Settings</button>
+      </div>
+
+      <div id="badge" hidden>点击穿透 Click-through</div>
     </main>
   </body>
 </html>
