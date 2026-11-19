@@ -32,10 +32,6 @@ mod platform {
         let _ = std::process::Command::new("open").arg(url).spawn();
     }
 
-    pub fn open_settings() {
-        open_pane("Privacy_Accessibility");
-    }
-
     pub fn open_input_monitoring_settings() {
         open_pane("Privacy_ListenEvent");
     }
@@ -65,7 +61,7 @@ mod platform {
 }
 
 pub use platform::{
-    is_trusted, listen_access, open_input_monitoring_settings, open_settings, request_listen_access,
+    is_trusted, listen_access, open_input_monitoring_settings, request_listen_access,
 };
 
 pub fn input_ready() -> bool {
