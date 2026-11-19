@@ -3,7 +3,6 @@ import { listen } from "@tauri-apps/api/event";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
 
-const pet = document.querySelector<HTMLElement>("#pet")!;
 const wrap = document.querySelector<HTMLElement>("#bunny-wrap")!;
 const pawLeft = document.querySelector<SVGGElement>("#paw-left")!;
 const pawRight = document.querySelector<SVGGElement>("#paw-right")!;
@@ -12,13 +11,10 @@ const banner = document.querySelector<HTMLElement>("#banner")!;
 const bannerBtn = document.querySelector<HTMLButtonElement>("#banner-btn")!;
 const badge = document.querySelector<HTMLElement>("#badge")!;
 
-const SLEEP_AFTER_MS = 5 * 60 * 1000;
 const HINT_FADE_MS = 1200;
 
 type Reaction = "left" | "right" | "mouse" | "wheel";
 
-let lastInput = Date.now();
-let sleeping = false;
 let hintTimer: number | undefined;
 let permissionTimer: number | undefined;
 
@@ -35,12 +31,6 @@ function bounce() {
 }
 
 function react(reaction: Reaction) {
-  lastInput = Date.now();
-
-  if (sleeping) {
-    wake();
-  }
-
   switch (reaction) {
     case "left":
       pulse(pawLeft);
@@ -64,28 +54,10 @@ function react(reaction: Reaction) {
   hintTimer = window.setTimeout(() => hint.classList.add("faded"), HINT_FADE_MS);
 }
 
-function sleep() {
-  sleeping = true;
-  pet.classList.add("sleeping");
-}
-
-function wake() {
-  sleeping = false;
-  pet.classList.remove("sleeping");
-  pet.classList.add("waking");
-  window.setTimeout(() => pet.classList.remove("waking"), 700);
-}
-
 for (const element of [pawLeft, pawRight]) {
   element.addEventListener("animationend", () => element.classList.remove("tap"));
 }
 wrap.addEventListener("animationend", () => wrap.classList.remove("bounce"));
-
-window.setInterval(() => {
-  if (!sleeping && Date.now() - lastInput >= SLEEP_AFTER_MS) {
-    sleep();
-  }
-}, 1000);
 
 type PermissionStatus = {
   accessibility: boolean;
