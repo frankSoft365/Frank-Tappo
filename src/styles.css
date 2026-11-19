@@ -201,10 +201,9 @@ body:active {
   transition: opacity 0.8s ease;
 }
 
-#hint span {
+#hint .hint-main {
   display: block;
-  font-size: 10px;
-  color: #94827a;
+  font-size: 11px;
 }
 
 #hint.faded {

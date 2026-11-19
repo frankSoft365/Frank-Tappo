@@ -1,6 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
+import { applyTranslations, resolveLanguage } from "./i18n";
+import type { Language, LanguageSetting } from "./i18n";
+
 const isTauri = "__TAURI_INTERNALS__" in window;
 
 const wrap = document.querySelector<HTMLElement>("#bunny-wrap")!;
@@ -64,6 +67,27 @@ type PermissionStatus = {
   input_monitoring: boolean;
 };
 
+type SettingsView = {
+  language: LanguageSetting;
+  resolved: Language;
+};
+
+function applyLanguage(view: SettingsView) {
+  applyTranslations(document, view.resolved);
+}
+
+async function refreshSettings() {
+  if (!isTauri) {
+    applyLanguage({ language: "system", resolved: resolveLanguage("system") });
+    return;
+  }
+  try {
+    applyLanguage(await invoke<SettingsView>("get_settings"));
+  } catch (error) {
+    console.warn("failed to load settings", error);
+  }
+}
+
 async function refreshPermission() {
   if (!isTauri) {
     return;
@@ -103,10 +127,15 @@ if (isTauri) {
     void invoke("request_input_monitoring");
   });
 
+  listen<SettingsView>("settings:changed", (event) => applyLanguage(event.payload));
+
+  void refreshSettings();
   void refreshPermission();
   permissionTimer = window.setInterval(refreshPermission, 3000);
   window.addEventListener("focus", () => void refreshPermission());
 } else {
+  applyLanguage({ language: "system", resolved: resolveLanguage("system") });
+
   // Browser preview: approximate the left/right split without reading key text.
   const isLeftKey = (code: string) =>
     /^Key[QWERTASDFGZXCVB]$/.test(code) ||

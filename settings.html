@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/settings.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>设置</title>
+    <script type="module" src="/src/settings.ts" defer></script>
+  </head>
+
+  <body>
+    <main class="panel">
+      <h1 data-i18n="settings.title">设置</h1>
+
+      <section class="card">
+        <h2 data-i18n="settings.language">语言</h2>
+
+        <label class="option">
+          <input type="radio" name="language" value="system" checked />
+          <span class="option-text">
+            <span data-i18n="settings.system">跟随系统</span>
+            <small id="system-hint">使用系统语言</small>
+          </span>
+        </label>
+
+        <label class="option">
+          <input type="radio" name="language" value="zh" />
+          <span class="option-text" data-i18n="language.zh">中文</span>
+        </label>
+
+        <label class="option">
+          <input type="radio" name="language" value="en" />
+          <span class="option-text" data-i18n="language.en">English</span>
+        </label>
+
+        <p class="note" data-i18n="settings.languageNote">
+          默认跟随系统语言，可随时切换；切换后立即生效。
+        </p>
+      </section>
+
+      <div class="actions">
+        <button id="done" type="button" data-i18n="settings.done">完成</button>
+      </div>
+    </main>
+  </body>
+</html>

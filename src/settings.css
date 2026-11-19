@@ -1,0 +1,99 @@
+:root {
+  font-family: ui-rounded, "SF Pro Rounded", "PingFang SC", "Segoe UI", sans-serif;
+  color-scheme: light;
+  color: #4a3b36;
+  background: #fbf3ea;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.panel {
+  padding: 22px 24px 18px;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  letter-spacing: 0.2px;
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a776e;
+}
+
+.card {
+  padding: 16px;
+  border: 2px solid #e8d8c6;
+  border-radius: 16px;
+  background: #fff9f3;
+  box-shadow: 0 8px 20px rgba(90, 60, 40, 0.08);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.option:hover {
+  background: #f7eadb;
+}
+
+.option input {
+  accent-color: #4a3b36;
+  width: 15px;
+  height: 15px;
+}
+
+.option-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.option-text small {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #94827a;
+}
+
+.note {
+  margin: 12px 2px 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #94827a;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+#done {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 10px;
+  background: #4a3b36;
+  color: #fff4ec;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#done:hover {
+  background: #5f4c45;
+}
