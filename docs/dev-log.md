@@ -56,9 +56,21 @@
 - 原生窗口像素级截图被 macOS 屏幕录制权限拦截；动画与交互已通过浏览器预览 + DOM/动画状态断言验证。
 - 详见 [M0 验证报告](./M0-technical-verification.md)。
 
+### 权限归属问题与全局输入验证（同日，第二轮）
+
+- 在「输入监控」勾选 `frank-tappo` 后 `CGPreflightListenEventAccess()` 仍为 false；用 Swift 探针从终端运行同样返回 false。
+- 定位：macOS 按**父进程归属**计算输入监控权限。通过 `npm run tauri dev` 启动时，实际被校验的是启动链（Qoder / 终端），勾选子进程无效。
+- 解决：新增 `scripts/dev-macos.sh`，Vite 单独运行，二进制由 `launchctl submit` 拉起。启动日志变为：
+  ```
+  [permissions] accessibility=false input_monitoring=true
+  [input] starting global listener
+  ```
+- 全局键盘/鼠标输入在真实应用中生效；端到端延迟 175 个样本：min 0ms / p50 1ms / p95 ≤ 9ms / max 19ms，优于 <100ms 预算。
+- 窗口由 CGWindowList 确认：300×360，layer 5（floating），位置 (1146, 572)，托盘状态项存在。
+
 ### 待办
 
-- 辅助功能授权后复测全局输入与端到端延迟。
+- 托盘「点击穿透」与睡眠/唤醒的人工确认。
 - release 构建复测 CPU / 内存，优化空闲动画。
 - Windows 真机验证（同一份构建流程）。
-- M1：首次启动自动弹辅助功能授权、单图导入、音效。
+- M1：单图导入、音效、内置形象精修；评估固定签名的开发证书，避免重编译后反复授权。

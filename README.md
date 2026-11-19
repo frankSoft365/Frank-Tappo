@@ -21,16 +21,17 @@
 
 ```bash
 npm install
-npm run tauri dev   # 启动桌面应用
+npm run tauri dev   # 启动桌面应用（Windows；macOS 见下方说明）
 npm run dev         # 仅启动前端，在浏览器里预览兔宝动画
 npm run build       # 前端类型检查 + 打包
 ```
 
 macOS 开发注意事项：
 
-- 全局键盘监听需要**「输入监控」**权限（系统设置 → 隐私与安全性 → 输入监控），对运行应用的进程授权。开发时进程是 `src-tauri/target/debug/frank-tappo`，部分环境下需要给启动它的终端授权。
-- 权限授予后应用会自动启动监听，无需重启；应用内横幅会实时消失。
-- 开发构建的二进制每次重新编译都会改变签名，TCC 授权可能失效，需要重新勾选；正式签名的 `.app` 不受影响。
+- 全局键盘监听需要**「输入监控」**权限（系统设置 → 隐私与安全性 → 输入监控），并且权限会记在**启动应用的父进程**名下。用 `npm run tauri dev` 从终端启动时，勾选 `frank-tappo` 也不会生效。
+- 请改用 `./scripts/dev-macos.sh`：它会启动 Vite、编译后用 `launchctl submit` 让系统直接拉起二进制，授权立即生效。日志在 `/tmp/frank-err.log`（延迟采样 `[latency]` 也在这里）。
+- 停止：`launchctl remove com.franktappo.dev`。
+- 重新编译会改变 ad-hoc 签名，TCC 授权可能失效：到「输入监控」里删除 `frank-tappo` 记录后重新添加即可。
 - 应用以 `Accessory` 模式运行（无 Dock 图标），通过菜单栏托盘图标操作：显示/隐藏、点击穿透、退出。
 
 ## 目录结构
