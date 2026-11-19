@@ -9,8 +9,8 @@ use serde::Serialize;
 use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{
-    AppHandle, Emitter, LogicalSize, Manager, PhysicalPosition, WebviewUrl, WebviewWindowBuilder,
-    Wry,
+    AppHandle, Emitter, LogicalSize, Manager, PhysicalPosition, WebviewUrl, WebviewWindow,
+    WebviewWindowBuilder, WindowEvent, Wry,
 };
 
 static LISTENER_STARTED: AtomicBool = AtomicBool::new(false);
@@ -237,19 +237,40 @@ fn refresh_tray(app: &AppHandle) {
     }
 }
 
+fn build_settings_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
+    let language = resolved_language(app);
+    let window = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
+        .title(settings_window_title(language))
+        .inner_size(420.0, 520.0)
+        .resizable(false)
+        .visible(false)
+        .center()
+        .build()?;
+    let handle = window.clone();
+    window.on_window_event(move |event| {
+        if let WindowEvent::CloseRequested { api, .. } = event {
+            api.prevent_close();
+            let _ = handle.hide();
+        }
+    });
+    Ok(window)
+}
+
 fn open_settings_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();
         let _ = window.set_focus();
         return;
     }
-    let language = resolved_language(app);
-    let _ = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
-        .title(settings_window_title(language))
-        .inner_size(420.0, 470.0)
-        .resizable(false)
-        .center()
-        .build();
+    // Building a webview inside the tray menu callback blocks the first click,
+    // so the window is normally pre-created at startup; this is a fallback.
+    match build_settings_window(app) {
+        Ok(window) => {
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
+        Err(error) => eprintln!("[settings] failed to open window: {error}"),
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -303,6 +324,10 @@ pub fn run() {
                 .build(app)?;
 
             apply_pet_scale(app.handle(), initial_scale);
+
+            if let Err(error) = build_settings_window(app.handle()) {
+                eprintln!("[settings] failed to preload window: {error}");
+            }
 
             ensure_input_listener(app.handle());
             Ok(())
