@@ -1,8 +1,8 @@
 # Frank Tappo
 
-跨平台的交互式桌宠：你在电脑上敲键盘、点鼠标，兔宝（Bunny）就会跟着拍键盘。目标是让任何人都能把自己的形象放上桌面——不只是猫。
+跨平台的交互式桌宠：你在电脑上敲键盘、点鼠标，Tappo（一只墨线小猫）就会跟着拍爪。目标是让任何人都能把自己的形象放上桌面——不只是猫。
 
-![Bunny preview](./docs/assets/bunny-idle.png)
+![Tappo preview](./docs/assets/tappo-idle.png)
 
 - 状态：**M0 技术验证**（2026-11）
 - 目标平台：Windows 10/11、macOS 12+（Apple Silicon / Intel）
@@ -14,7 +14,7 @@
 | --- | --- |
 | 外壳 | Tauri 2（Rust） |
 | 前端 | TypeScript + Vite（无框架） |
-| 全局输入 | [rdev](https://crates.io/crates/rdev)（Windows `WH_KEYBOARD_LL` / macOS `CGEventTap`） |
+| 全局输入 | 自建 CGEventTap（macOS）/ [rdev](https://crates.io/crates/rdev) `WH_KEYBOARD_LL`（Windows） |
 | 动画 | 原生 SVG + CSS，状态机在 `src/main.ts` |
 
 ## 开发
@@ -22,7 +22,7 @@
 ```bash
 npm install
 npm run tauri dev   # 启动桌面应用（Windows；macOS 见下方说明）
-npm run dev         # 仅启动前端，在浏览器里预览兔宝动画
+npm run dev         # 仅启动前端，在浏览器里预览 Tappo 动画
 npm run build       # 前端类型检查 + 打包
 ```
 
@@ -38,7 +38,7 @@ macOS 开发注意事项：
 ## 目录结构
 
 ```
-src/                      前端：兔宝 SVG、动画状态机、权限引导
+src/                      前端：角色 SVG、动画状态机、权限引导
 src/i18n.ts               中英文案字典与本地化应用
 src/settings.ts           设置页逻辑（语言切换）
 settings.html             设置页入口
