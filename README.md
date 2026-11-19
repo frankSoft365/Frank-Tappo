@@ -29,9 +29,9 @@ npm run build       # 前端类型检查 + 打包
 macOS 开发注意事项：
 
 - 全局键盘监听需要**「输入监控」**权限（系统设置 → 隐私与安全性 → 输入监控），并且权限会记在**启动应用的父进程**名下。用 `npm run tauri dev` 从终端启动时，勾选 `frank-tappo` 也不会生效。
-- 请改用 `./scripts/dev-macos.sh`：它会启动 Vite、编译后用 `launchctl submit` 让系统直接拉起二进制，授权立即生效。日志在 `/tmp/frank-err.log`（延迟采样 `[latency]` 也在这里）。
-- 停止：`launchctl remove com.franktappo.dev`。
-- 重新编译会改变 ad-hoc 签名，TCC 授权可能失效：到「输入监控」里删除 `frank-tappo` 记录后重新添加即可。
+- 请改用 `./scripts/dev-macos.sh`：它会启动 Vite、编译后用 `launchctl submit` 让系统直接拉起二进制。日志在 `/tmp/frank-err.log`（延迟采样 `[latency]` 也在这里）。
+- 授权后**必须重启一次应用**（`./scripts/dev-macos.sh`）——macOS 15 会在进程内缓存授权判定。
+- 重新编译不再影响授权：脚本会用本机 Apple Development 证书对二进制签名，签名身份固定。
 - 应用以 `Accessory` 模式运行（无 Dock 图标），通过菜单栏托盘图标操作：显示/隐藏、点击穿透、退出。
 
 ## 目录结构

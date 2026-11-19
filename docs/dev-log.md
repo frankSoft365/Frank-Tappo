@@ -74,6 +74,9 @@
 - 替换为自建 listen-only `CGEventTap`：只读取虚拟键码做左右分区，不做任何字符转换；鼠标按键与滚轮直接读按钮号。崩溃根因消除，隐私边界更严格。Windows 继续使用 rdev。
 - **TCC 授权反复失效**：确认 ad-hoc 签名每次重编译都会换 cdhash。开发脚本改为用现有 Apple Development 证书签名（`com.franktappo.app`），签名身份固定，后续编译不再丢授权。
 - **需求变更：取消睡眠机制**。兔宝永远待机，只展示拍击反应，不自动休眠、不要求交互；移除 Sleep / Wake 状态、Zzz、伸懒腰相关代码与 PRD 条目。
+- **授权生效条件澄清**：macOS 15 在进程内缓存输入监控判定，用户在系统设置里勾选后必须重启应用才生效（之前误判为 3 秒轮询即可生效）。重启后日志为 `input_monitoring=true`，CGEventTap 正常监听。
+- **签名稳定性已验证**：touch 触发重编译 + 同一证书重签 + 重启后，授权依然有效（`input_monitoring=true`），M1 迭代不再需要反复授权。
+- 新 CGEventTap 后端延迟复测：75 个样本 min 0ms / p50 1ms / p95 ≤ 2ms / max 2ms，无崩溃。
 
 ### 待办
 

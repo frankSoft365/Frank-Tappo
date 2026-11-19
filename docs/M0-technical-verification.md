@@ -30,7 +30,7 @@
 | 4 | 点击穿透 | ⚠️ 待托盘交互确认 | `set_ignore_cursor_events` + 托盘勾选项已实现 |
 | 5 | 全局键盘监听 | ✅ 通过 | `[permissions] input_monitoring=true` → `[input] starting global listener`；真实全局输入触发前端动画 |
 | 6 | 全局鼠标监听 | ✅ 通过 | 同一监听线程；鼠标点击/滚轮事件正常进入前端（点击反应沿用测试） |
-| 7 | 权限引导 | ✅ 通过 | 同时检测辅助功能 / 输入监控；双语横幅、授权弹窗、深链跳转；授权后 3s 内自动启动监听，无需重启 |
+| 7 | 权限引导 | ✅ 通过 | 同时检测辅助功能 / 输入监控；双语横幅、授权弹窗、深链跳转。macOS 15 在进程内缓存授权判定，**授权后需重启应用**（`./scripts/dev-macos.sh`），重启即自动启动监听 |
 | 8 | 输入 → 动画延迟 | ✅ 通过 | 125 个真实按键样本：min 0ms / p50 1ms / p95 ≤ 9ms / max 15ms（预算 <100ms） |
 | 9 | 空闲 CPU / 内存 | ❌ 未达标（debug） | 空闲 CPU ≈ 2.7%（单核），RSS ≈ 100MB；需 release 复测并优化空闲动画 |
 | 10 | 打包产物（.dmg） | ⏳ 未开始 | 计划 M2 处理签名与公证 |
@@ -39,8 +39,8 @@
 
 ## 已知问题
 
-1. **macOS 权限按父进程归属**：从终端启动的开发版，输入监控授权会被算到启动它的父进程（Qoder / 终端）名下，导致「输入监控」里勾选 `frank-tappo` 后 `CGPreflightListenEventAccess()` 仍返回 false。改用 `launchctl submit` 让系统直接拉起二进制后授权立即生效。正式发布为 `.app` 由 Finder 启动，不存在此问题。
-2. **重编译会使授权失效**（已缓解）：ad-hoc 签名每次链接都会改变 cdhash。开发脚本现在用现有 Apple Development 证书签名（`com.franktappo.app`），签名身份稳定，M1 反复编译无需重新授权。
+1. **macOS 权限按父进程归属 + 进程内缓存**：从终端启动的开发版，输入监控授权会被算到启动它的父进程（Qoder / 终端）名下；且授权判定在进程生命周期内缓存，授权后必须重启应用才生效。开发脚本用 `launchctl submit` 独立启动，授权后重跑脚本即可。
+2. **重编译会使授权失效**（已解决）：ad-hoc 签名每次链接都会改变 cdhash。开发脚本现在用 Apple Development 证书签名（`com.franktappo.app`，Team `GML6M83HDT`），签名身份稳定；实测重编译后重启，授权保持有效。
 3. **空闲 CPU 超出预算**：常驻 CSS 动画（呼吸/耳朵/眨眼）持续 60fps 合成。M1 优化方向：窗口隐藏/睡眠时暂停动画、降低空闲动画帧率、减少合成层。
 4. **窗口右下边距偏大**（约 48pt），定位逻辑需按 `visibleFrame` 精修（M1）。
 5. rdev 0.5.3 引入的传递依赖 `block v0.1.6` 有 future-incompat 警告（不影响运行）。
@@ -51,9 +51,9 @@
 1. 打开「系统设置 → 隐私与安全性 → 输入监控」，勾选 `frank-tappo`：
    `/Users/frank/myCodes/Frank Tappo/src-tauri/target/debug/frank-tappo`
    （若列表中没有，点击应用内权限横幅按钮触发系统授权弹窗）
-2. 回归应用：兔宝窗口应透明、始终置顶、位于屏幕右下。
+2. **重新运行 `./scripts/dev-macos.sh` 重启应用**（授权在进程内缓存，必须重启才生效）。
 3. 在任意应用敲击键盘：左手键位 → 左手拍击，右手键位 → 右手拍击；连续敲击应连贯跟手。
-4. 终端（或 `tail -f /tmp/frank-err.log`）应周期性输出：
+4. `tail -f /tmp/frank-err.log` 应周期性输出：
    `[latency] samples=25 min=…ms p50=…ms p95=…ms max=…ms`
 5. 托盘菜单：勾选「点击穿透」后鼠标可穿透兔宝；显示/隐藏、退出正常。
 
