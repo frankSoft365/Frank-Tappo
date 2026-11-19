@@ -32,15 +32,21 @@ macOS 开发注意事项：
 - 请改用 `./scripts/dev-macos.sh`：它会启动 Vite、编译后用 `launchctl submit` 让系统直接拉起二进制。日志在 `/tmp/frank-err.log`（延迟采样 `[latency]` 也在这里）。
 - 授权后**必须重启一次应用**（`./scripts/dev-macos.sh`）——macOS 15 会在进程内缓存授权判定。
 - 重新编译不再影响授权：脚本会用本机 Apple Development 证书对二进制签名，签名身份固定。
-- 应用以 `Accessory` 模式运行（无 Dock 图标），通过菜单栏托盘图标操作：显示/隐藏、点击穿透、退出。
+- 应用以 `Accessory` 模式运行（无 Dock 图标），通过菜单栏托盘图标操作：显示/隐藏、点击穿透、设置、退出。
+- 语言默认跟随系统，可在托盘「设置…」中切换中文 / English，切换即时生效并持久化到应用配置目录。
 
 ## 目录结构
 
 ```
 src/                      前端：兔宝 SVG、动画状态机、权限引导
+src/i18n.ts               中英文案字典与本地化应用
+src/settings.ts           设置页逻辑（语言切换）
+settings.html             设置页入口
 src-tauri/src/input.rs    全局输入监听（隐私过滤层）
-src-tauri/src/permissions.rs  macOS 辅助功能权限检测
+src-tauri/src/permissions.rs  macOS 权限检测
+src-tauri/src/settings.rs 语言设置持久化与系统语言解析
 src-tauri/src/lib.rs      窗口、托盘、命令注册
+scripts/dev-macos.sh      macOS 开发启动（launchctl + 稳定签名）
 docs/                     M0 验证报告与开发日志
 PRD.md                    产品需求文档
 ```
