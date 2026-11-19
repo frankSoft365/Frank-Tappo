@@ -1,5 +1,6 @@
 mod input;
 mod permissions;
+mod settings;
 
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Mutex;
@@ -7,7 +8,7 @@ use std::sync::Mutex;
 use serde::Serialize;
 use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{Emitter, Manager, PhysicalPosition};
+use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, WebviewUrl, WebviewWindowBuilder, Wry};
 
 static LISTENER_STARTED: AtomicBool = AtomicBool::new(false);
 
@@ -15,6 +16,8 @@ static LISTENER_STARTED: AtomicBool = AtomicBool::new(false);
 struct AppState {
     click_through: AtomicBool,
 }
+
+struct SettingsState(Mutex<settings::Settings>);
 
 #[derive(Default)]
 struct LatencySamples(Mutex<Vec<u64>>);
@@ -43,7 +46,7 @@ fn log_permission_status(status: &PermissionStatus) {
     }
 }
 
-fn ensure_input_listener(app: &tauri::AppHandle) {
+fn ensure_input_listener(app: &AppHandle) {
     if !permissions::input_ready() || LISTENER_STARTED.swap(true, Ordering::Relaxed) {
         return;
     }
@@ -52,7 +55,7 @@ fn ensure_input_listener(app: &tauri::AppHandle) {
 }
 
 #[tauri::command]
-fn check_permissions(app: tauri::AppHandle) -> PermissionStatus {
+fn check_permissions(app: AppHandle) -> PermissionStatus {
     let status = permission_status();
     log_permission_status(&status);
     ensure_input_listener(&app);
@@ -60,7 +63,7 @@ fn check_permissions(app: tauri::AppHandle) -> PermissionStatus {
 }
 
 #[tauri::command]
-fn request_input_monitoring(app: tauri::AppHandle) -> bool {
+fn request_input_monitoring(app: AppHandle) -> bool {
     let granted = permissions::request_listen_access();
     if granted {
         ensure_input_listener(&app);
@@ -89,13 +92,110 @@ fn report_latency(ms: u64, samples: tauri::State<LatencySamples>) {
     }
 }
 
-fn set_click_through_enabled(app: &tauri::AppHandle, enabled: bool) {
+#[tauri::command]
+fn get_settings(app: AppHandle) -> settings::SettingsView {
+    let state = app.state::<SettingsState>();
+    let guard = state.0.lock().unwrap();
+    settings::view(&guard)
+}
+
+#[tauri::command]
+fn set_language(app: AppHandle, language: String) -> Result<settings::SettingsView, String> {
+    if !matches!(language.as_str(), "system" | "zh" | "en") {
+        return Err(format!("unsupported language: {language}"));
+    }
+    let state = app.state::<SettingsState>();
+    let mut guard = state.0.lock().unwrap();
+    guard.language = language;
+    settings::save(&app, &guard)?;
+    let view = settings::view(&guard);
+    drop(guard);
+
+    refresh_tray(&app);
+    if let Some(window) = app.get_webview_window("settings") {
+        let _ = window.set_title(&settings_window_title(&view.resolved));
+    }
+    let _ = app.emit("settings:changed", view.clone());
+    Ok(view)
+}
+
+fn set_click_through_enabled(app: &AppHandle, enabled: bool) {
     let state = app.state::<AppState>();
     state.click_through.store(enabled, Ordering::Relaxed);
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.set_ignore_cursor_events(enabled);
     }
     let _ = app.emit("ui:click-through", enabled);
+    refresh_tray(app);
+}
+
+fn resolved_language(app: &AppHandle) -> &'static str {
+    let state = app.state::<SettingsState>();
+    let guard = state.0.lock().unwrap();
+    settings::resolve(&guard.language)
+}
+
+fn tray_labels(language: &str) -> (&'static str, &'static str, &'static str, &'static str) {
+    match language {
+        "zh" => ("点击穿透", "显示/隐藏", "设置…", "退出"),
+        _ => ("Click-through", "Show/Hide", "Settings…", "Quit"),
+    }
+}
+
+fn settings_window_title(language: &str) -> String {
+    match language {
+        "zh" => "设置",
+        _ => "Settings",
+    }
+    .to_string()
+}
+
+fn build_tray_menu(app: &AppHandle, language: &str) -> tauri::Result<Menu<Wry>> {
+    let (click_through, show_hide, settings_label, quit) = tray_labels(language);
+    let checked = app.state::<AppState>().click_through.load(Ordering::Relaxed);
+
+    let click_through_item =
+        CheckMenuItem::with_id(app, "click_through", click_through, true, checked, None::<&str>)?;
+    let show_hide_item =
+        MenuItem::with_id(app, "show_hide", show_hide, true, None::<&str>)?;
+    let settings_item = MenuItem::with_id(app, "settings", settings_label, true, None::<&str>)?;
+    let separator = PredefinedMenuItem::separator(app)?;
+    let quit_item = MenuItem::with_id(app, "quit", quit, true, None::<&str>)?;
+
+    Menu::with_items(
+        app,
+        &[
+            &click_through_item,
+            &show_hide_item,
+            &settings_item,
+            &separator,
+            &quit_item,
+        ],
+    )
+}
+
+fn refresh_tray(app: &AppHandle) {
+    let language = resolved_language(app);
+    if let Some(tray) = app.tray_by_id("main-tray") {
+        if let Ok(menu) = build_tray_menu(app, language) {
+            let _ = tray.set_menu(Some(menu));
+        }
+    }
+}
+
+fn open_settings_window(app: &AppHandle) {
+    if let Some(window) = app.get_webview_window("settings") {
+        let _ = window.show();
+        let _ = window.set_focus();
+        return;
+    }
+    let language = resolved_language(app);
+    let _ = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
+        .title(settings_window_title(language))
+        .inner_size(420.0, 360.0)
+        .resizable(false)
+        .center()
+        .build();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -115,24 +215,11 @@ pub fn run() {
                 permissions::request_listen_access();
             }
 
-            let click_through_item = CheckMenuItem::with_id(
-                app,
-                "click_through",
-                "点击穿透 Click-through",
-                true,
-                false,
-                None::<&str>,
-            )?;
-            let show_hide_item =
-                MenuItem::with_id(app, "show_hide", "显示/隐藏 Show/Hide", true, None::<&str>)?;
-            let separator = PredefinedMenuItem::separator(app)?;
-            let quit_item = MenuItem::with_id(app, "quit", "退出 Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(
-                app,
-                &[&click_through_item, &show_hide_item, &separator, &quit_item],
-            )?;
+            let settings = settings::load(app.handle());
+            app.manage(SettingsState(Mutex::new(settings)));
 
-            let click_through_for_menu = click_through_item.clone();
+            let language = resolved_language(app.handle());
+            let menu = build_tray_menu(app.handle(), language)?;
             TrayIconBuilder::with_id("main-tray")
                 .icon(app.default_window_icon().unwrap().clone())
                 .menu(&menu)
@@ -144,7 +231,6 @@ pub fn run() {
                             .click_through
                             .load(Ordering::Relaxed);
                         set_click_through_enabled(app, enabled);
-                        let _ = click_through_for_menu.set_checked(enabled);
                     }
                     "show_hide" => {
                         if let Some(window) = app.get_webview_window("main") {
@@ -155,6 +241,7 @@ pub fn run() {
                             }
                         }
                     }
+                    "settings" => open_settings_window(app),
                     "quit" => app.exit(0),
                     _ => {}
                 })
@@ -177,7 +264,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             check_permissions,
             request_input_monitoring,
-            report_latency
+            report_latency,
+            get_settings,
+            set_language
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
