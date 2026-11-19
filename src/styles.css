@@ -157,7 +157,9 @@ body:active {
   line-height: 1.5;
   color: #5a4a42;
   text-align: center;
-  white-space: nowrap;
+  max-width: calc(100% - 16px);
+  box-sizing: border-box;
+  white-space: normal;
   pointer-events: none;
   transition: opacity 0.8s ease;
 }
@@ -177,7 +179,8 @@ body:active {
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
-  width: 260px;
+  width: calc(100% - 16px);
+  max-width: 260px;
   box-sizing: border-box;
   padding: 10px 12px;
   border: 2px solid #4a3b36;
@@ -226,4 +229,42 @@ body:active {
   color: #fff4ec;
   font-size: 9px;
   pointer-events: none;
+}
+
+@media (max-width: 200px) {
+  #hint {
+    top: 4px;
+    padding: 4px 7px;
+    border-radius: 8px;
+    font-size: 9px;
+    line-height: 1.35;
+  }
+
+  #hint .hint-main {
+    font-size: 9px;
+  }
+
+  #banner {
+    top: 4px;
+    width: calc(100% - 8px);
+    padding: 6px 8px;
+    border-radius: 10px;
+  }
+
+  #banner p {
+    margin-bottom: 5px;
+    font-size: 9px;
+    line-height: 1.4;
+  }
+
+  #banner button {
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-size: 9px;
+  }
+
+  #badge {
+    padding: 3px 5px;
+    font-size: 8px;
+  }
 }

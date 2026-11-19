@@ -8,9 +8,16 @@ use std::sync::Mutex;
 use serde::Serialize;
 use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, WebviewUrl, WebviewWindowBuilder, Wry};
+use tauri::{
+    AppHandle, Emitter, LogicalSize, Manager, PhysicalPosition, WebviewUrl, WebviewWindowBuilder,
+    Wry,
+};
 
 static LISTENER_STARTED: AtomicBool = AtomicBool::new(false);
+
+const PET_BASE_WIDTH: f64 = 300.0;
+const PET_BASE_HEIGHT: f64 = 360.0;
+const PET_MARGIN: f64 = 24.0;
 
 #[derive(Default)]
 struct AppState {
@@ -97,6 +104,53 @@ fn get_settings(app: AppHandle) -> settings::SettingsView {
     let state = app.state::<SettingsState>();
     let guard = state.0.lock().unwrap();
     settings::view(&guard)
+}
+
+fn apply_pet_scale(app: &AppHandle, scale: f64) {
+    let scale = scale.clamp(settings::SCALE_MIN, settings::SCALE_MAX);
+    let Some(window) = app.get_webview_window("main") else {
+        return;
+    };
+    let _ = window.set_size(LogicalSize::new(
+        PET_BASE_WIDTH * scale,
+        PET_BASE_HEIGHT * scale,
+    ));
+    let monitor = window
+        .current_monitor()
+        .ok()
+        .flatten()
+        .or_else(|| window.primary_monitor().ok().flatten());
+    let Some(monitor) = monitor else {
+        return;
+    };
+    let factor = monitor.scale_factor();
+    let width = (PET_BASE_WIDTH * scale * factor).round() as i32;
+    let height = (PET_BASE_HEIGHT * scale * factor).round() as i32;
+    let margin = (PET_MARGIN * factor).round() as i32;
+    let area = monitor.work_area();
+    let x = area.position.x + area.size.width as i32 - width - margin;
+    let y = area.position.y + area.size.height as i32 - height - margin;
+    let _ = window.set_position(PhysicalPosition::new(x, y));
+}
+
+#[tauri::command]
+fn preview_scale(app: AppHandle, scale: f64) {
+    apply_pet_scale(&app, scale);
+}
+
+#[tauri::command]
+fn set_scale(app: AppHandle, scale: f64) -> Result<settings::SettingsView, String> {
+    let scale = scale.clamp(settings::SCALE_MIN, settings::SCALE_MAX);
+    let state = app.state::<SettingsState>();
+    let mut guard = state.0.lock().unwrap();
+    guard.scale = scale;
+    settings::save(&app, &guard)?;
+    let view = settings::view(&guard);
+    drop(guard);
+
+    apply_pet_scale(&app, scale);
+    let _ = app.emit("settings:changed", view.clone());
+    Ok(view)
 }
 
 #[tauri::command]
@@ -192,7 +246,7 @@ fn open_settings_window(app: &AppHandle) {
     let language = resolved_language(app);
     let _ = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
         .title(settings_window_title(language))
-        .inner_size(420.0, 360.0)
+        .inner_size(420.0, 470.0)
         .resizable(false)
         .center()
         .build();
@@ -216,6 +270,7 @@ pub fn run() {
             }
 
             let settings = settings::load(app.handle());
+            let initial_scale = settings.scale;
             app.manage(SettingsState(Mutex::new(settings)));
 
             let language = resolved_language(app.handle());
@@ -247,16 +302,7 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            if let Some(window) = app.get_webview_window("main") {
-                if let Ok(Some(monitor)) = window.primary_monitor() {
-                    let margin = (24.0 * monitor.scale_factor()) as i32;
-                    if let Ok(size) = window.outer_size() {
-                        let x = monitor.size().width as i32 - size.width as i32 - margin;
-                        let y = monitor.size().height as i32 - size.height as i32 - margin;
-                        let _ = window.set_position(PhysicalPosition::new(x, y));
-                    }
-                }
-            }
+            apply_pet_scale(app.handle(), initial_scale);
 
             ensure_input_listener(app.handle());
             Ok(())
@@ -266,7 +312,9 @@ pub fn run() {
             request_input_monitoring,
             report_latency,
             get_settings,
-            set_language
+            set_language,
+            preview_scale,
+            set_scale
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

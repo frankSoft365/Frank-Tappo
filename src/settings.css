@@ -39,6 +39,10 @@ h2 {
   box-shadow: 0 8px 20px rgba(90, 60, 40, 0.08);
 }
 
+.card + .card {
+  margin-top: 12px;
+}
+
 .option {
   display: flex;
   align-items: center;
@@ -75,6 +79,26 @@ h2 {
   font-size: 11px;
   line-height: 1.6;
   color: #94827a;
+}
+
+.size-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 2px;
+}
+
+#scale {
+  flex: 1;
+  accent-color: #4a3b36;
+}
+
+.size-value {
+  min-width: 38px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #8a776e;
+  text-align: right;
 }
 
 .actions {
