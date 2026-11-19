@@ -40,7 +40,7 @@
 ## 已知问题
 
 1. **macOS 权限按父进程归属**：从终端启动的开发版，输入监控授权会被算到启动它的父进程（Qoder / 终端）名下，导致「输入监控」里勾选 `frank-tappo` 后 `CGPreflightListenEventAccess()` 仍返回 false。改用 `launchctl submit` 让系统直接拉起二进制后授权立即生效。正式发布为 `.app` 由 Finder 启动，不存在此问题。
-2. **重编译会使授权失效**：ad-hoc 签名每次链接都会改变 cdhash，TCC 旧记录不再匹配；需要删除并重新添加二进制，或后续改用固定的自签名开发证书。
+2. **重编译会使授权失效**（已缓解）：ad-hoc 签名每次链接都会改变 cdhash。开发脚本现在用现有 Apple Development 证书签名（`com.franktappo.app`），签名身份稳定，M1 反复编译无需重新授权。
 3. **空闲 CPU 超出预算**：常驻 CSS 动画（呼吸/耳朵/眨眼）持续 60fps 合成。M1 优化方向：窗口隐藏/睡眠时暂停动画、降低空闲动画帧率、减少合成层。
 4. **窗口右下边距偏大**（约 48pt），定位逻辑需按 `visibleFrame` 精修（M1）。
 5. rdev 0.5.3 引入的传递依赖 `block v0.1.6` 有 future-incompat 警告（不影响运行）。
@@ -56,14 +56,13 @@
 4. 终端（或 `tail -f /tmp/frank-err.log`）应周期性输出：
    `[latency] samples=25 min=…ms p50=…ms p95=…ms max=…ms`
 5. 托盘菜单：勾选「点击穿透」后鼠标可穿透兔宝；显示/隐藏、退出正常。
-6. 静止 5 分钟：兔宝闭眼、耳朵下垂、出现 Zzz；任意输入唤醒。
 
 ## 结论与下一步
 
 - Tauri 2 + rdev 在 macOS 15 / Apple M2 上可编译、可启动，窗口、托盘与全局输入链路成立，未发现硬阻塞。
 - 延迟显著优于预算（p50 1ms / p95 ≤ 9ms / max 15ms），可满足「输入即反馈」体验。
 - 权限链路的坑已定位并写入开发流程：macOS 下用 `scripts/dev-macos.sh` 启动（Vite + `launchctl submit`），避免父进程归属问题。
-- 下一步：托盘点击穿透与睡眠唤醒人工确认 → release 构建测 CPU/内存 → 安排 Windows 真机验证（M0 出口标准）。
+- 下一步：托盘点击穿透人工确认 → release 构建测 CPU/内存 → 安排 Windows 真机验证（M0 出口标准）。
 
 ## 复现步骤
 
