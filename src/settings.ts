@@ -26,9 +26,9 @@ const doneButton = document.querySelector<HTMLButtonElement>("#done")!;
 let current: SettingsView = {
   language: "system",
   resolved: "en",
-  scale: 0.75,
-  scale_min: 0.5,
-  scale_max: 1.5,
+  scale: 0.5,
+  scale_min: 0.3,
+  scale_max: 0.8,
 };
 let previewFrame: number | undefined;
 let pendingScale: number | undefined;

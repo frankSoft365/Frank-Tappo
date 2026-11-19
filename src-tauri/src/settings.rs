@@ -4,9 +4,9 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 
-pub const SCALE_MIN: f64 = 0.5;
-pub const SCALE_MAX: f64 = 1.5;
-pub const SCALE_DEFAULT: f64 = 0.75;
+pub const SCALE_MIN: f64 = 0.3;
+pub const SCALE_MAX: f64 = 0.8;
+pub const SCALE_DEFAULT: f64 = 0.5;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Settings {
