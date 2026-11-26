@@ -1,0 +1,12 @@
+{
+  "id": "moning",
+  "tol": 12,
+  "files": [
+    { "file": "default.png", "sha256": "2e41caac262440ebfc21ce67c99278b0c10f7e0bee6e60df5e406a01b1599480", "md5": "07ebb6614a4459984f376121b7d9601e" },
+    { "file": "left-hand.png", "sha256": "f5fee78c5bf812b23daadd75a6dfb9fbee1ed3d234c734e90f31fc1c69220b9e", "md5": "45fb21e451c5fb92253cfa93c8e195ab" },
+    { "file": "right-hand.png", "sha256": "705f28abae1f191631348290bccafbe281627649a8e0464ff578f650630dc1a6", "md5": "c8ec2a28e02bacda30316296dda7f2b6" },
+    { "file": "default-eyes-closed.png", "sha256": "18f97bb4aa11b2a1ac20d32b49fcd7b97b3c603042e941bf2513ded42d5c9703", "md5": "989c8287c688f9baa5ed0e4a9d7f22f1" },
+    { "file": "left-hand-eyes-closed.png", "sha256": "2b7d638b55cde7c37b9738c3a1c26a6c6d2eeacb6d2183a097c09f63cefaf57d", "md5": "0cfbe25e8c0d3007d1802a4bd58167ed" },
+    { "file": "right-hand-eyes-closed.png", "sha256": "e341c9d95c403f62c6f9f190121d36eceec6c4c67ac3140c0dc3d742c50d4fa9", "md5": "1bffae8c86e99f37f92fb08861f05059" }
+  ]
+}

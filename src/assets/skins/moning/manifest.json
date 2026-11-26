@@ -1,0 +1,61 @@
+{
+  "format": 0,
+  "id": "moning",
+  "name": { "zh": "莫宁", "en": "Moning" },
+  "license": { "source": "TODO 原画来源与再分发权限待确认", "redistribution_ok": false },
+  "canvas": { "width": 197, "height": 164 },
+  "display": {
+    "width": 300,
+    "drop": 12,
+    "impact": {
+      "color": "#e44d83",
+      "left": { "x": 134, "y": 312 },
+      "right": { "x": 77, "y": 301 }
+    }
+  },
+  "regions": {
+    "eyes": { "rows": [90, 114], "cols": [91, 126], "changed_px": 678 },
+    "hand_left": { "rows": [116, 162], "cols": [80, 116], "changed_px": 1173 },
+    "hand_right": { "rows": [128, 156], "cols": [52, 79], "changed_px": 695 }
+  },
+  "palette": { "mode": "free", "colors": null, "tol": 12 },
+  "provenance": "source",
+  "frames": [
+    {
+      "state": { "hand": "up", "eyes": "open" },
+      "file": "default.png",
+      "md5": "07ebb6614a4459984f376121b7d9601e",
+      "sha256": "2e41caac262440ebfc21ce67c99278b0c10f7e0bee6e60df5e406a01b1599480"
+    },
+    {
+      "state": { "hand": "left", "eyes": "open" },
+      "file": "left-hand.png",
+      "md5": "45fb21e451c5fb92253cfa93c8e195ab",
+      "sha256": "f5fee78c5bf812b23daadd75a6dfb9fbee1ed3d234c734e90f31fc1c69220b9e"
+    },
+    {
+      "state": { "hand": "right", "eyes": "open" },
+      "file": "right-hand.png",
+      "md5": "c8ec2a28e02bacda30316296dda7f2b6",
+      "sha256": "705f28abae1f191631348290bccafbe281627649a8e0464ff578f650630dc1a6"
+    },
+    {
+      "state": { "hand": "up", "eyes": "closed" },
+      "file": "default-eyes-closed.png",
+      "md5": "989c8287c688f9baa5ed0e4a9d7f22f1",
+      "sha256": "18f97bb4aa11b2a1ac20d32b49fcd7b97b3c603042e941bf2513ded42d5c9703"
+    },
+    {
+      "state": { "hand": "left", "eyes": "closed" },
+      "file": "left-hand-eyes-closed.png",
+      "md5": "0cfbe25e8c0d3007d1802a4bd58167ed",
+      "sha256": "2b7d638b55cde7c37b9738c3a1c26a6c6d2eeacb6d2183a097c09f63cefaf57d"
+    },
+    {
+      "state": { "hand": "right", "eyes": "closed" },
+      "file": "right-hand-eyes-closed.png",
+      "md5": "1bffae8c86e99f37f92fb08861f05059",
+      "sha256": "e341c9d95c403f62c6f9f190121d36eceec6c4c67ac3140c0dc3d742c50d4fa9"
+    }
+  ]
+}
