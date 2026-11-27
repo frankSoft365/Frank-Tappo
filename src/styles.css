@@ -19,158 +19,211 @@ body:active {
 }
 
 #pet {
+  --pet-unit: calc(100vh / 392);
+  /* Per-skin runtime numbers; src/skins.ts overwrites these from the active pack's
+     manifest. The defaults repeat the xigerika pack so the page still renders without JS. */
+  --skin-width: 300;
+  --skin-canvas-w: 197;
+  --skin-drop: 12;
+  --impact-left-x: 138;
+  --impact-left-y: 312;
+  --impact-right-x: 66;
+  --impact-right-y: 301;
+  --impact-color: #e85431;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
+  padding: 0 calc(16 * var(--pet-unit)) calc(22 * var(--pet-unit));
+
+  /* The lowered arm fills --skin-drop rows under the body's crop line. Bottom-aligning
+     that canvas would lift the body off the counter, so the art drops by exactly those
+     canvas rows at the current display scale. */
+  --art-drop: calc(var(--skin-drop) * var(--skin-width) / var(--skin-canvas-w) * var(--pet-unit));
+}
+
+.windows-canvas #pet {
+  --pet-unit: 1px;
+  width: 392px;
+  height: 392px;
+  transform-origin: 0 0;
+  transform: translate(var(--canvas-x, 0px), var(--canvas-y, 0px)) scale(var(--canvas-scale, 1));
+  will-change: transform;
 }
 
 #stage {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  align-self: center;
+  width: calc(var(--skin-width) * var(--pet-unit));
+  min-height: 0;
   pointer-events: none;
-}
-
-#pet-wrap {
-  width: 100%;
-  height: 100%;
 }
 
 #pet-art {
   display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
-  transform-origin: 50% 92%;
-  animation: breathe 4.2s ease-in-out infinite;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateY(var(--art-drop));
 }
 
-@keyframes breathe {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-1.5px) scaleY(1.006);
-  }
-}
-
-/* eyes */
-
-#eyes {
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-  animation: blink 4.8s ease-in-out infinite;
-}
-
-@keyframes blink {
-  0%,
-  91%,
-  95%,
-  100% {
-    transform: scaleY(1);
-  }
-  93% {
-    transform: scaleY(0.12);
-  }
-}
-
-/* paw taps */
-
-.paw {
-  transform-box: fill-box;
-  transform-origin: 50% 92%;
-}
-
-#paw-left.tap {
-  animation: tap-left 0.16s ease-out;
-}
-
-#paw-right.tap {
-  animation: tap-right 0.16s ease-out;
-}
-
-@keyframes tap-left {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  30% {
-    transform: translate(0, -16px) rotate(-12deg);
-  }
-  68% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  84% {
-    transform: translate(0, 2px) scaleY(0.9);
-  }
-  100% {
-    transform: translate(0, 0) scaleY(1);
-  }
-}
-
-@keyframes tap-right {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  30% {
-    transform: translate(0, -16px) rotate(12deg);
-  }
-  68% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  84% {
-    transform: translate(0, 2px) scaleY(0.9);
-  }
-  100% {
-    transform: translate(0, 0) scaleY(1);
-  }
-}
-
-#pet-wrap.bounce {
-  animation: bounce 0.18s ease-out;
-}
-
-@keyframes bounce {
-  0% {
-    transform: translateY(0) scaleY(1);
-  }
-  45% {
-    transform: translateY(2px) scaleY(0.994);
-  }
-  100% {
-    transform: translateY(0) scaleY(1);
-  }
-}
-
-/* hint, banner, badge */
-
-#hint {
+#pet-art-left,
+#pet-art-right {
   position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  padding: 7px 12px;
-  border-radius: 12px;
-  background: rgba(255, 252, 248, 0.9);
-  box-shadow: 0 4px 16px rgba(90, 60, 40, 0.14);
-  font-size: 11px;
-  line-height: 1.5;
-  color: #5a4a42;
-  text-align: center;
-  max-width: calc(100% - 16px);
-  box-sizing: border-box;
-  white-space: normal;
-  pointer-events: none;
-  transition: opacity 0.8s ease;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateY(var(--art-drop));
+  visibility: hidden;
 }
 
-#hint .hint-main {
-  display: block;
-  font-size: 11px;
+#stage[data-hand="left"] #pet-art,
+#stage[data-hand="right"] #pet-art {
+  visibility: hidden;
 }
 
-#hint.faded {
+#stage[data-hand="left"] #pet-art-left {
+  visibility: visible;
+}
+
+#stage[data-hand="right"] #pet-art-right {
+  visibility: visible;
+}
+
+#pet-art-eyes,
+#pet-art-eyes-left,
+#pet-art-eyes-right {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateY(var(--art-drop));
+  visibility: hidden;
+}
+
+#stage[data-eyes="closed"] #pet-art,
+#stage[data-eyes="closed"] #pet-art-left,
+#stage[data-eyes="closed"] #pet-art-right {
+  visibility: hidden;
+}
+
+#stage[data-eyes="closed"][data-hand="up"] #pet-art-eyes {
+  visibility: visible;
+}
+
+#stage[data-eyes="closed"][data-hand="left"] #pet-art-eyes-left {
+  visibility: visible;
+}
+
+#stage[data-eyes="closed"][data-hand="right"] #pet-art-eyes-right {
+  visibility: visible;
+}
+
+#tap-impact {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--impact-left-x) * var(--pet-unit));
+  top: calc(var(--impact-left-y) * var(--pet-unit));
+  width: calc(40 * var(--pet-unit));
+  height: calc(24 * var(--pet-unit));
+  color: var(--impact-color);
   opacity: 0;
+  transform-origin: 40% 20%;
+  pointer-events: none;
+}
+
+#tap-impact-right {
+  visibility: hidden;
+}
+
+#stage[data-hand="right"] #tap-impact {
+  left: calc(var(--impact-right-x) * var(--pet-unit));
+  top: calc(var(--impact-right-y) * var(--pet-unit));
+  transform-origin: 60% 20%;
+}
+
+#stage[data-hand="right"] #tap-impact-left {
+  visibility: hidden;
+}
+
+#stage[data-hand="right"] #tap-impact-right {
+  visibility: visible;
+}
+
+#pet-controls {
+  display: flex;
+  z-index: 1;
+  flex: 0 0 auto;
+  align-self: center;
+  /* The right edge grows alone so the gear icon's ink lands on the art's right edge (canvas x 346). */
+  width: calc(336 * var(--pet-unit));
+  margin-top: calc(-2 * var(--pet-unit));
+  margin-left: calc(16 * var(--pet-unit));
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  /* Vertical inset is 60% of the former implicit (72u board − 58u button) / 2 = 7u. */
+  padding: calc(4.2 * var(--pet-unit)) calc(18 * var(--pet-unit));
+  border: 0;
+  border-radius: 9999px;
+  background: #f7f2e8;
+  box-shadow: 0 calc(6 * var(--pet-unit)) calc(8 * var(--pet-unit)) rgba(115, 77, 35, 0.22);
+}
+
+#tap-count {
+  flex: 1;
+  min-width: 0;
+  margin-left: calc(12 * var(--pet-unit));
+  margin-right: calc(12 * var(--pet-unit));
+  color: #8c5f44;
+  font-size: calc(var(--counter-font-size, 32) * var(--pet-unit));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#settings-toggle {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: calc(58 * var(--pet-unit));
+  height: calc(58 * var(--pet-unit));
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  color: #8c5f44;
+  opacity: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#settings-toggle svg {
+  width: calc(48 * var(--pet-unit));
+  height: calc(48 * var(--pet-unit));
+  pointer-events: none;
+}
+
+#settings-toggle:focus-visible {
+  outline: 1px solid #8a776e;
+  outline-offset: -2px;
+}
+
+#banner,
+#badge {
+  zoom: var(--overlay-zoom, 1);
 }
 
 #banner {
@@ -231,19 +284,54 @@ body:active {
   pointer-events: none;
 }
 
+/* Dev-build watermark; zoom keeps it readable at every pet scale. Hidden in release. */
+#dev-mark {
+  display: none;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  padding: 3px 7px;
+  border-radius: 7px;
+  background: rgba(140, 95, 68, 0.85);
+  color: #fff4ec;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  line-height: 1;
+  zoom: var(--overlay-zoom, 1);
+  pointer-events: none;
+}
+
+.dev-build #dev-mark {
+  display: block;
+}
+
+.compact-canvas #banner {
+  top: 4px;
+  width: calc(100% - 8px);
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+
+.compact-canvas #banner p {
+  margin-bottom: 5px;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.compact-canvas #banner button {
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 9px;
+}
+
+.compact-canvas #badge {
+  padding: 3px 5px;
+  font-size: 8px;
+}
+
 @media (max-width: 200px) {
-  #hint {
-    top: 4px;
-    padding: 4px 7px;
-    border-radius: 8px;
-    font-size: 9px;
-    line-height: 1.35;
-  }
-
-  #hint .hint-main {
-    font-size: 9px;
-  }
-
   #banner {
     top: 4px;
     width: calc(100% - 8px);

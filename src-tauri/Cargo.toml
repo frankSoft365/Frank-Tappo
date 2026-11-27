@@ -1,6 +1,6 @@
 [package]
 name = "frank-tappo"
-version = "0.1.0"
+version = "0.2.1"
 description = "Frank Tappo - a desktop pet that taps along with your typing"
 authors = ["Frank"]
 edition = "2024"
@@ -20,9 +20,24 @@ tauri = { version = "2", features = ["tray-icon", "macos-private-api"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sys-locale = "0.3.2"
+gilrs = { version = "0.11.2", default-features = false, features = ["xinput"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSWindow"] }
+objc2-foundation = { version = "0.3.2", default-features = false, features = ["std", "NSGeometry"] }
+objc2-core-graphics = { version = "0.3.2", default-features = false, features = ["std", "CGDirectDisplay"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_UI_HiDpi", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
 
 [target.'cfg(not(target_os = "macos"))'.dependencies]
 rdev = "0.5"
+
+[dev-dependencies]
+# 皮肤包校验器（tests/skin_manifest.rs）用。两者都已是 tauri 的传递依赖、
+# 版本在 Cargo.lock 里固定，用 `=` 锁死避免解析出新版本；测试依赖不进发布二进制。
+png = "=0.18.1"
+sha2 = "=0.10.9"
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
 [profile.release]

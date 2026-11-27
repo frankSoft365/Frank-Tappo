@@ -1,0 +1,58 @@
+{
+  "format": "demo-slot-0",
+  "id": "moning",
+  "canvas": { "width": 197, "height": 164 },
+  "base": "base.png",
+  "slots": {
+    "eyes":       { "rows": [88, 107],  "cols": [55, 125] },
+    "hand_right": { "rows": [108, 163], "cols": [55, 85] },
+    "hand_left":  { "rows": [108, 163], "cols": [86, 125] }
+  },
+  "adjacency_0px": [
+    "eyes.bottom + 1 == hand_right.top == hand_left.top  (107 + 1 == 108)",
+    "hand_right.right + 1 == hand_left.left  (85 + 1 == 86)",
+    "三槽两两不相交"
+  ],
+  "layers": {
+    "eyes_closed": "layers/eyes-closed.png",
+    "hand_left":   "layers/hand-left.png",
+    "hand_right":  "layers/hand-right.png"
+  },
+  "composition": "frame(hand, eyes) = base 上依次盖 [eyes=closed → eyes_closed 层]、[hand=left → hand_left 层]、[hand=right → hand_right 层]；层只上盖，α=0 的像素不参与",
+  "construction": {
+    "head_vs_body": "头（含发团）为绝对主体，可见黑色身体只有颈下一小截（torso rows 119..161 cols 74..114，其中大部分被双爪与刘海遮住）",
+    "left_hand_raised_45deg": "左爪（观者右，pink 槽）自 base 原位 rows 119..127 cols 87..97 平移 dy=-7 dx=+6 至 rows 112..120 cols 93..103，约 45° 抬至下巴；0 缩放",
+    "right_hand_horizontal": "右爪（观者左，blue 槽）平移 dy=+5 dx=-10 并横向拉伸 13px 至 rows 124..132 cols 68..80，水平伸出并贴住胸衣，末端不悬空"
+  },
+  "frames": {
+    "up_open":       { "file": "frames/default.png",               "sha256": "869c6e873c34bbd61324124d0f149ec1c50fbd73d64b437cb52752eab5e8323a" },
+    "left_open":     { "file": "frames/left-hand.png",             "sha256": "705cdfb50b6257b76789ff9b2b302b1bf75f0229eb96610e540850b62f804ad0" },
+    "right_open":    { "file": "frames/right-hand.png",            "sha256": "9c0f21fba6bf1954ae588e3cb78a6bcd9704ad7fedd3e14d87bda5b4363b807b" },
+    "up_closed":     { "file": "frames/default-eyes-closed.png",   "sha256": "02dd75e0e11573f21dd811e1d2a0f6f89f61812cc27bf0bbd46a0f4de7cee7c2" },
+    "left_closed":   { "file": "frames/left-hand-eyes-closed.png", "sha256": "c69e28cd594250869c425e5f67a8e548db5864e37a9b84a73fd9b0cbf349a185" },
+    "right_closed":  { "file": "frames/right-hand-eyes-closed.png","sha256": "b18c34b5cd7f3d606d692acb01208d2970b74e6de28d4a595c0182f11b0498d8" }
+  },
+  "measured": {
+    "tol": 12,
+    "layer_opaque_px": { "eyes_closed": 333, "hand_left": 204, "hand_right": 208 },
+    "layer_opaque_outside_slot_px": { "eyes_closed": 0, "hand_left": 0, "hand_right": 0 },
+    "frame_changed_px_vs_base": {
+      "up_open": 0,
+      "left_open": 169,
+      "right_open": 208,
+      "up_closed": 276,
+      "left_closed": 445,
+      "right_closed": 484
+    },
+    "frame_changed_bbox": {
+      "up_closed":    "rows 91..106 cols 98..118",
+      "left_open":    "rows 111..127 cols 87..104",
+      "right_open":   "rows 119..133 cols 67..85",
+      "left_closed":  "rows 91..127 cols 87..118",
+      "right_closed": "rows 91..133 cols 67..118"
+    },
+    "frame_changes_outside_allowed_slots_px": 0,
+    "alpha_flips": "无：所有动作帧只上盖像素，未清空任何已有像素（合成校验 5/5 精确通过）"
+  },
+  "provenance": "底图：ImageGen 生成（2026-11-26），按橙色角色画法验收（头远大于身体、双爪极小、单眼可见）后等比贴合 197×164（白底泛洪抠底）得到 base.png；原始生成图 vibe_images/moning-base-v4_1795701586440_dcc913da.png。动作帧：程序化局部补丁（爪位整数平移+1px 深红描边、闭眼整眼区重绘眼睑带），无 AI 重绘动作帧。"
+}

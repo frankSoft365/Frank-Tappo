@@ -9,148 +9,38 @@
   </head>
 
   <body>
-    <main id="pet" data-tauri-drag-region>
-      <div id="stage" aria-hidden="true">
-        <div id="pet-wrap">
-          <svg id="pet-art" viewBox="0 0 260 320" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="128" cy="302" rx="72" ry="5" fill="rgba(40, 30, 25, 0.08)" />
-
-            <!-- curled tail loop with halftone dots -->
-            <g id="tail-loop" transform="rotate(-8 132 160)">
-              <path
-                d="M184 243 A98 98 0 1 0 80 243"
-                fill="none"
-                stroke="#241F1E"
-                stroke-width="46"
-                stroke-linecap="round"
-              />
-              <path
-                d="M184 243 A98 98 0 1 0 80 243"
-                fill="none"
-                stroke="#FFFFFF"
-                stroke-width="33"
-                stroke-linecap="round"
-              />
-              <g fill="#241F1E">
-                <circle cx="33" cy="124" r="5.5" />
-                <circle cx="53" cy="105" r="3.5" />
-                <circle cx="45" cy="92" r="4.5" />
-                <circle cx="68" cy="84" r="4.5" />
-                <circle cx="86" cy="62" r="5" />
-                <circle cx="112" cy="64" r="3.2" />
-                <circle cx="116" cy="55" r="5.8" />
-                <circle cx="132" cy="68" r="4" />
-                <circle cx="150" cy="57" r="6.5" />
-                <circle cx="158" cy="70" r="3" />
-                <circle cx="180" cy="61" r="4.5" />
-                <circle cx="188" cy="81" r="3.8" />
-                <circle cx="200" cy="79" r="6" />
-                <circle cx="206" cy="98" r="4" />
-                <circle cx="226" cy="106" r="5.5" />
-                <circle cx="224" cy="127" r="3.2" />
-                <circle cx="238" cy="132" r="4.8" />
-                <circle cx="231" cy="151" r="4" />
-                <circle cx="238" cy="179" r="5.2" />
-                <circle cx="223" cy="193" r="3.5" />
-                <circle cx="226" cy="214" r="5.8" />
-                <circle cx="206" cy="222" r="3.2" />
-              </g>
-            </g>
-
-            <!-- body and feet -->
-            <path
-              id="pet-body"
-              d="M106 174 C94 186 88 204 90 222 C92 238 88 252 80 262 C74 270 76 288 86 288 C90 295 98 295 101 289 C106 295 114 295 116 288 C122 295 130 295 132 288 C138 295 146 294 148 287 C154 292 161 287 162 279 C166 258 165 244 161 232 C168 212 167 192 156 178 Z"
-              fill="#FFFFFF"
-              stroke="#241F1E"
-              stroke-width="6"
-              stroke-linejoin="round"
-            />
-
-            <!-- left paw -->
-            <g id="paw-left" class="paw">
-              <path
-                d="M94 246 C86 242 76 246 70 252 C65 257 62 264 64 271 C65 276 69 280 74 278 C76 283 82 285 86 281 C90 285 96 283 96 278 C99 280 102 276 101 271 C100 261 98 252 94 246 Z"
-                fill="#FFFFFF"
-                stroke="#241F1E"
-                stroke-width="5"
-                stroke-linejoin="round"
-              />
-            </g>
-
-            <!-- head -->
-            <g id="pet-head" transform="rotate(-3 128 160)">
-              <path
-                d="M92 132 C84 124 78 108 78 96 C78 88 84 84 90 88 C102 96 112 106 116 116 C126 108 142 106 152 112 C160 102 168 92 176 88 C182 84 188 88 186 96 C184 108 180 120 174 130 C192 140 198 160 194 178 C190 198 178 212 162 218 C146 226 118 226 102 218 C88 210 78 194 80 176 C82 160 84 144 92 132 Z"
-                fill="#FFFFFF"
-                stroke="#241F1E"
-                stroke-width="6"
-                stroke-linejoin="round"
-              />
-              <path d="M92 110 C94 101 101 99 107 107" fill="none" stroke="#241F1E" stroke-width="3.5" stroke-linecap="round" />
-              <path d="M161 107 C165 100 169 99 172 105" fill="none" stroke="#241F1E" stroke-width="3.5" stroke-linecap="round" />
-              <g fill="none" stroke="#241F1E" stroke-width="3" stroke-linecap="round" opacity="0.85">
-                <path d="M90 187 q-8 3 -10 10" />
-                <path d="M98 190 q-7 4 -7 11" />
-              </g>
-
-              <g id="eyes">
-                <path d="M102 150 q6 6 12 0" fill="none" stroke="#241F1E" stroke-width="4.2" stroke-linecap="round" />
-                <path d="M146 150 q6 6 12 0" fill="none" stroke="#241F1E" stroke-width="4.2" stroke-linecap="round" />
-              </g>
-              <ellipse cx="128" cy="158" rx="3.2" ry="2.4" fill="#241F1E" />
-              <path
-                d="M120 164 q4 6 8 0 q4 6 8 0"
-                fill="none"
-                stroke="#241F1E"
-                stroke-width="3.4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <g stroke="#241F1E" stroke-width="2.4" stroke-linecap="round" opacity="0.7">
-                <path d="M94 160 L83 155" />
-                <path d="M94 168 L83 171" />
-                <path d="M162 160 L173 155" />
-                <path d="M162 168 L173 171" />
-              </g>
-
-              <path
-                d="M110 88 L114.1 100.3 L127.2 100.8 L117.2 108.7 L120.8 121.3 L110 113.9 L99.2 121.3 L102.8 108.7 L92.8 100.8 L105.9 100.3 Z"
-                fill="#FFFFFF"
-                stroke="#241F1E"
-                stroke-width="4"
-                stroke-linejoin="round"
-              />
-              <circle cx="110" cy="105" r="4.6" fill="#2F55D4" />
-            </g>
-
-            <!-- right paw holding a blue capsule -->
-            <g id="paw-right" class="paw">
-              <rect
-                x="185"
-                y="211"
-                width="11"
-                height="31"
-                rx="5.5"
-                transform="rotate(12 190.5 226.5)"
-                fill="#2F55D4"
-                stroke="#241F1E"
-                stroke-width="4"
-              />
-              <path
-                d="M166 204 C158 206 154 214 156 222 C150 226 150 236 156 240 C162 244 170 242 172 236 C178 240 185 236 185 229 C185 219 178 210 172 207 Z"
-                fill="#FFFFFF"
-                stroke="#241F1E"
-                stroke-width="5"
-                stroke-linejoin="round"
-              />
-            </g>
-          </svg>
-        </div>
+    <main id="pet" data-pet-drag-region>
+      <div id="stage" data-hand="up" data-eyes="open" aria-hidden="true">
+        <!-- Frame sources come from the active skin pack (src/skins.ts); the six ids are the socket. -->
+        <img id="pet-art" alt="" draggable="false" />
+        <img id="pet-art-left" alt="" draggable="false" />
+        <img id="pet-art-right" alt="" draggable="false" />
+        <img id="pet-art-eyes" alt="" draggable="false" />
+        <img id="pet-art-eyes-left" alt="" draggable="false" />
+        <img id="pet-art-eyes-right" alt="" draggable="false" />
+        <svg id="tap-impact" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true" focusable="false">
+          <g id="tap-impact-left">
+            <path d="M6.5 11v6" stroke-width="4.6" />
+            <path d="m15.9 11.9 4.2 4.2" stroke-width="4.6" />
+            <path d="m24.9 7.9 4.2 4.2" stroke-width="4.6" />
+          </g>
+          <g id="tap-impact-right">
+            <path d="M29.1 11v6" stroke-width="4.6" />
+            <path d="m15.5 16.1 4.2-4.2" stroke-width="4.6" />
+            <path d="m10.7 7.9-4.2 4.2" stroke-width="4.6" />
+          </g>
+        </svg>
       </div>
 
-      <div id="hint" data-tauri-drag-region>
-        <span class="hint-main" data-i18n="hint.main">敲敲键盘，Tappo 陪你敲</span>
+      <div id="pet-controls" data-pet-drag-region>
+        <span id="tap-count" aria-label="累计点击: 0" title="累计点击: 0">0</span>
+        <button id="settings-toggle" type="button" aria-label="更多" title="更多" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
+            <path d="M7.8 7.2h8.4" />
+            <path d="M7.8 12h8.4" />
+            <path d="M7.8 16.8h8.4" />
+          </svg>
+        </button>
       </div>
 
       <div id="banner" hidden>
@@ -161,6 +51,8 @@
       </div>
 
       <div id="badge" data-i18n="badge.clickThrough" hidden>点击穿透</div>
+
+      <span id="dev-mark" aria-hidden="true">DEV</span>
     </main>
   </body>
 </html>

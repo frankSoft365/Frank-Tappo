@@ -1,0 +1,49 @@
+{
+  "format": "demo-slot-0",
+  "id": "catgirl-mint",
+  "canvas": { "width": 197, "height": 164 },
+  "base": "base.png",
+  "slots": {
+    "eyes":       { "rows": [84, 116],  "cols": [50, 130] },
+    "hand_right": { "rows": [117, 154], "cols": [45, 90] },
+    "hand_left":  { "rows": [117, 154], "cols": [91, 130] }
+  },
+  "adjacency_0px": [
+    "eyes.bottom + 1 == hand_right.top == hand_left.top  (116 + 1 == 117)",
+    "hand_right.right + 1 == hand_left.left  (90 + 1 == 91)",
+    "三槽两两不相交"
+  ],
+  "layers": {
+    "eyes_closed": "layers/eyes-closed.png",
+    "hand_left":   "layers/hand-left.png",
+    "hand_right":  "layers/hand-right.png"
+  },
+  "composition": "frame(hand, eyes) = base 上依次盖 [eyes=closed → eyes_closed 层]、[hand=left → hand_left 层]、[hand=right → hand_right 层]；层只上盖，α=0 的像素不参与",
+  "frames": {
+    "up_open":       { "file": "frames/default.png",               "sha256": "ce5eb89cc44f3ef5852f1468b4af49aa2655be75c2daee545391a1158b99996d" },
+    "left_open":     { "file": "frames/left-hand.png",             "sha256": "1ed24909eb831486627bc4dfbafdbddb06abc440654aafd6870a4c7092309607" },
+    "right_open":    { "file": "frames/right-hand.png",            "sha256": "ccdab44f1b1f6bfe0860b078e8e485bf06e7d1b0b2a6c398b1735c616bceec80" },
+    "up_closed":     { "file": "frames/default-eyes-closed.png",   "sha256": "2845506621bab3664340d046e0db028141ebeddb2a9a30561f0ef890c259d320" },
+    "left_closed":   { "file": "frames/left-hand-eyes-closed.png", "sha256": "23a73e80af56543752d12044ff4aab1d501024bd9dc1c8b42334444b07138336" },
+    "right_closed":  { "file": "frames/right-hand-eyes-closed.png","sha256": "2538321c0d1bf191f9e4bbbf90622b2ab40c7c845c3ae0c9fdb5505b0484b79b" }
+  },
+  "measured": {
+    "tol": 12,
+    "layer_opaque_px": { "eyes_closed": 1342, "hand_left": 880, "hand_right": 829 },
+    "layer_opaque_outside_slot_px": { "eyes_closed": 0, "hand_left": 0, "hand_right": 0 },
+    "frame_changed_px_vs_base": {
+      "up_open": 0,
+      "left_open": 880,
+      "right_open": 829,
+      "up_closed": 1342,
+      "left_closed": 2222,
+      "right_closed": 2171
+    },
+    "frame_changes_outside_allowed_slots_px": 0,
+    "alpha_flips_inside_slot": {
+      "hand_right": { "opaque_to_clear": 79, "note": "层只能上盖不能挖空，这 79 px 保持底图内容" },
+      "hand_left": { "clear_to_opaque": 17 }
+    }
+  },
+  "provenance": "ImageGen 图像生成（2026-11-26）img2img：底图 1 张 + 闭眼/左手/右手 3 张区域变体；变体按槽位外差异最小化对齐后，只在槽位内取差异像素成层。原始生成图在 vibe_images/tappo-skin-v1-*.png。"
+}

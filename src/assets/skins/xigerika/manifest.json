@@ -1,0 +1,61 @@
+{
+  "format": 0,
+  "id": "xigerika",
+  "name": { "zh": "西格莉卡", "en": "Xigerika" },
+  "license": { "source": "TODO 原画来源与再分发权限待确认", "redistribution_ok": false },
+  "canvas": { "width": 197, "height": 164 },
+  "display": {
+    "width": 300,
+    "drop": 12,
+    "impact": {
+      "color": "#e85431",
+      "left": { "x": 138, "y": 312 },
+      "right": { "x": 66, "y": 301 }
+    }
+  },
+  "regions": {
+    "eyes": { "rows": [88, 116], "cols": [51, 128], "changed_px": 1493 },
+    "hand_left": { "rows": [118, 163], "cols": [83, 118], "changed_px": 930 },
+    "hand_right": { "rows": [130, 159], "cols": [57, 82], "changed_px": 707 }
+  },
+  "palette": { "mode": "free", "colors": null, "tol": 12 },
+  "provenance": "source",
+  "frames": [
+    {
+      "state": { "hand": "up", "eyes": "open" },
+      "file": "default.png",
+      "md5": "8c72e5ba463b009a699a3b43695f6d0b",
+      "sha256": "bddd89a8e2b4ebe25c800263c00ca7891050490b0641754913fbaf7ef7e5e586"
+    },
+    {
+      "state": { "hand": "left", "eyes": "open" },
+      "file": "left-hand.png",
+      "md5": "d1fbc29992a16adf6ac36dac4cf6c638",
+      "sha256": "269b3145618d404bfa1660098ee666528bf94956a5eab8db89b8ed945caba2c7"
+    },
+    {
+      "state": { "hand": "right", "eyes": "open" },
+      "file": "right-hand.png",
+      "md5": "6d9a7f1d8edc72a570d6d2a45fd95f20",
+      "sha256": "7bc4c07e1db0dc1cceb568f642826a674b63eef7113b74b082debc989e054d03"
+    },
+    {
+      "state": { "hand": "up", "eyes": "closed" },
+      "file": "default-eyes-closed.png",
+      "md5": "dae286ac4f5e487f99d95317db0bf135",
+      "sha256": "8df4dbbdf072cc4e2f9a5a5c3e0d2790f84bed0c7de6c464d56dd2b9e799dde4"
+    },
+    {
+      "state": { "hand": "left", "eyes": "closed" },
+      "file": "left-hand-eyes-closed.png",
+      "md5": "13c5fe8822b401a4ab65f750811a457a",
+      "sha256": "7550a6e36eff51c2d2f8a434e79530ecc4be49f705ac5a00d979c6384d9e35b2"
+    },
+    {
+      "state": { "hand": "right", "eyes": "closed" },
+      "file": "right-hand-eyes-closed.png",
+      "md5": "97bca7bec2ee20c7522cc347cc7e2d55",
+      "sha256": "7c21448ecccd29c39946ebf03dd5918a277e533f5160761586514e2a52751ef7"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "format": "demo-slot-0",
+  "id": "tappo-side45",
+  "canvas": { "width": 197, "height": 164 },
+  "base": "base.png",
+  "slots": {
+    "eyes":       { "rects": [ { "rows": [54, 106],  "cols": [53, 123] } ] },
+    "hand_right": { "rects": [ { "rows": [76, 163], "cols": [0, 52] } ] },
+    "hand_left":  { "rects": [ { "rows": [76, 163],  "cols": [124, 196] },
+                               { "rows": [107, 163], "cols": [121, 123] } ] }
+  },
+  "adjacency_0px": [
+    "hand_right.right + 1 == eyes.left  (52 + 1 == 53)",
+    "eyes.right + 1 == hand_left.rects[0].left  (123 + 1 == 124)",
+    "hand_left.rects[1].right + 1 == hand_left.rects[0].left  (123 + 1 == 124，L 形连通)",
+    "三槽两两不相交（按矩形声明域）"
+  ],
+  "layers": {
+    "eyes_closed": "layers/eyes-closed.png",
+    "hand_left":   "layers/hand-left.png",
+    "hand_right":  "layers/hand-right.png"
+  },
+  "composition": "frame(hand, eyes) = 槽位外取 base 原样；槽位内按层的掩码逐像素取变体完整 RGBA——掩码内 α=0 也照拷，即允许挖空。层只改写自己槽位内的像素，三槽两两不相交，故层的先后顺序不影响结果。",
+  "frames": {
+    "up_open":       { "file": "frames/default.png",                "sha256": "7ddd1910b2a5b21d0044bb6b55dfdcfe90a81db1aca0113afc8931201267d818" },
+    "left_open":     { "file": "frames/left-hand.png",              "sha256": "b40693ebbf713bfbde4e6aa22cf748a08f94b5264a7782c7c22a1b3a5dc73aaa" },
+    "right_open":    { "file": "frames/right-hand.png",             "sha256": "dc13b367e26b109f59434ca4e54a601e320b7041fd8d67df3cfb6b1c82304617" },
+    "up_closed":     { "file": "frames/default-eyes-closed.png",    "sha256": "6022c7325197f2293c81ed3e247992df0f18bf37bd21fe097b09117e4e1add53" },
+    "left_closed":   { "file": "frames/left-hand-eyes-closed.png",  "sha256": "f09296fc8c2357e5cd14901079552b7fa2bf24a13cb1836cd0184e13a15f9e0d" },
+    "right_closed":  { "file": "frames/right-hand-eyes-closed.png", "sha256": "deb2651b03b8adcb27f27c192a035ceb6e0b0e6d5acb669285b902784ed67bb0" }
+  },
+  "measured": {
+    "tol": 12,
+    "align_shift_px": {
+      "eyes_closed": { "dx": 0, "dy": 0, "outside_slot_diff_before_patch": 1682 },
+      "hand_left":   { "dx": 1, "dy": 0, "outside_slot_diff_before_patch": 2077 },
+      "hand_right":  { "dx": 0, "dy": 0, "outside_slot_diff_before_patch": 1936 }
+    },
+    "layer_mask_px": { "eyes_closed": 1405, "hand_left": 2731, "hand_right": 1871 },
+    "layer_eraser_px": { "eyes_closed": 0, "hand_left": 413, "hand_right": 273 },
+    "layer_added_px": { "eyes_closed": 0, "hand_left": 125, "hand_right": 300 },
+    "layer_mask_outside_slot_px": { "eyes_closed": 0, "hand_left": 0, "hand_right": 0 },
+    "frame_changed_px_vs_base": {
+      "up_open": 0,
+      "left_open": 2731,
+      "right_open": 1871,
+      "up_closed": 1405,
+      "left_closed": 4136,
+      "right_closed": 3276
+    },
+    "frame_changes_outside_allowed_slots_px": 0,
+    "note": "outside_slot_diff_before_patch 是 AI 变体在槽外的漂移，按规则不采纳、保留 base 像素"
+  },
+  "art_constraints": {
+    "blueprint": "以 xigerika 橙色头发角色为蓝本（不照抄）",
+    "turn": "侧身约 3/4：只见角色左耳（观察者右上），右耳不可见",
+    "perspective": "左手为近手、更大：近拳 26x29 px，远拳 18x20 px",
+    "strike": "举手约 45 度 -> 拍下约 45 度；近拳中心 (147.6, 93.5) -> (135.1, 130.1)，位移 38.7 px 向下内；远拳 (40.1, 98.1) -> (32.4, 119.8)，位移 23.0 px 向下内；近手行程为远手的 1.68 倍"
+  },
+  "provenance": "ImageGen 图像生成（2026-11-26）img2img：底图 1 张（sprite-side45-base-d）+ 闭眼/近手拍击/远手拍击 3 张区域变体；1280 宽裁到 1160 去水印，再固定参数缩到 197x164，按槽外差异最小化做整数对齐后，只在槽内按差分连通域取层。原始生成图在 vibe_images/sprite-side45-*.png。"
+}

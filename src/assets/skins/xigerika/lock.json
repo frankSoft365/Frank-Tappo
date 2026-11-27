@@ -1,0 +1,12 @@
+{
+  "id": "xigerika",
+  "tol": 12,
+  "files": [
+    { "file": "default.png", "sha256": "bddd89a8e2b4ebe25c800263c00ca7891050490b0641754913fbaf7ef7e5e586", "md5": "8c72e5ba463b009a699a3b43695f6d0b" },
+    { "file": "left-hand.png", "sha256": "269b3145618d404bfa1660098ee666528bf94956a5eab8db89b8ed945caba2c7", "md5": "d1fbc29992a16adf6ac36dac4cf6c638" },
+    { "file": "right-hand.png", "sha256": "7bc4c07e1db0dc1cceb568f642826a674b63eef7113b74b082debc989e054d03", "md5": "6d9a7f1d8edc72a570d6d2a45fd95f20" },
+    { "file": "default-eyes-closed.png", "sha256": "8df4dbbdf072cc4e2f9a5a5c3e0d2790f84bed0c7de6c464d56dd2b9e799dde4", "md5": "dae286ac4f5e487f99d95317db0bf135" },
+    { "file": "left-hand-eyes-closed.png", "sha256": "7550a6e36eff51c2d2f8a434e79530ecc4be49f705ac5a00d979c6384d9e35b2", "md5": "13c5fe8822b401a4ab65f750811a457a" },
+    { "file": "right-hand-eyes-closed.png", "sha256": "7c21448ecccd29c39946ebf03dd5918a277e533f5160761586514e2a52751ef7", "md5": "97bca7bec2ee20c7522cc347cc7e2d55" }
+  ]
+}

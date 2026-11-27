@@ -4,56 +4,390 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="/src/settings.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>设置</title>
+    <title>更多</title>
     <script type="module" src="/src/settings.ts" defer></script>
   </head>
 
   <body>
-    <main class="panel">
-      <h1 data-i18n="settings.title">设置</h1>
+    <div class="panel" data-tauri-drag-region>
+      <aside class="sidebar" data-tauri-drag-region="deep">
+        <p class="brand">Frank Tappo</p>
+        <nav class="tabs" role="tablist" aria-orientation="vertical">
+          <button
+            class="tab"
+            id="tab-characters"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="page-characters"
+            data-page="characters"
+            tabindex="-1"
+          >
+            <svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true">
+              <circle cx="8" cy="4.9" r="2.7" fill="currentColor" />
+              <path
+                d="M8 9c-3.1 0-5.3 1.8-5.3 4.2 0 .5.4.9.9.9h8.8c.5 0 .9-.4.9-.9C13.3 10.8 11.1 9 8 9Z"
+                fill="currentColor"
+              />
+            </svg>
+            <span data-i18n="settings.tab.characters">角色</span>
+          </button>
+          <button
+            class="tab"
+            id="tab-general"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="page-general"
+            data-page="general"
+          >
+            <svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true">
+              <g fill="currentColor">
+                <circle cx="8" cy="2.4" r="1.7" />
+                <circle cx="11.96" cy="4.04" r="1.7" />
+                <circle cx="13.6" cy="8" r="1.7" />
+                <circle cx="11.96" cy="11.96" r="1.7" />
+                <circle cx="8" cy="13.6" r="1.7" />
+                <circle cx="4.04" cy="11.96" r="1.7" />
+                <circle cx="2.4" cy="8" r="1.7" />
+                <circle cx="4.04" cy="4.04" r="1.7" />
+              </g>
+              <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M8 3.3a4.7 4.7 0 1 0 0 9.4a4.7 4.7 0 1 0 0-9.4Zm0 2.6a2.1 2.1 0 1 1 0 4.2a2.1 2.1 0 1 1 0-4.2Z"
+              />
+            </svg>
+            <span data-i18n="settings.tab.general">设置</span>
+          </button>
+        </nav>
+      </aside>
 
-      <section class="card">
-        <h2 data-i18n="settings.language">语言</h2>
+      <main class="content">
+        <header class="window-bar" data-tauri-drag-region="deep">
+          <button id="close" class="window-close" type="button">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <defs>
+                <radialGradient id="close-face-fill" cx="50%" cy="42%" r="68%">
+                  <stop offset="0%" stop-color="#bc7c56" />
+                  <stop offset="62%" stop-color="#c88860" />
+                  <stop offset="100%" stop-color="#cd936d" />
+                </radialGradient>
+                <filter id="close-shadow-blur" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="1.5" />
+                </filter>
+              </defs>
+              <rect
+                x="8"
+                y="8"
+                width="32"
+                height="32"
+                rx="7"
+                transform="translate(0 3) rotate(45 24 24)"
+                fill="rgba(96, 52, 28, 0.3)"
+                stroke="rgba(96, 52, 28, 0.3)"
+                stroke-width="2.4"
+                filter="url(#close-shadow-blur)"
+              />
+              <rect
+                x="8"
+                y="8"
+                width="32"
+                height="32"
+                rx="7"
+                transform="rotate(45 24 24)"
+                fill="url(#close-face-fill)"
+                stroke="#985838"
+                stroke-width="2.4"
+              />
+              <path
+                d="M18.4 18.4l11.2 11.2M29.6 18.4l-11.2 11.2"
+                fill="none"
+                stroke="#f8d090"
+                stroke-width="5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </header>
+        <div class="pages">
+          <section class="page" id="page-general" role="tabpanel" aria-labelledby="tab-general">
+            <section class="card">
+              <h2 data-i18n="settings.language">语言</h2>
 
-        <label class="option">
-          <input type="radio" name="language" value="system" checked />
-          <span class="option-text">
-            <span data-i18n="settings.system">跟随系统</span>
-            <small id="system-hint">使用系统语言</small>
-          </span>
-        </label>
+              <label class="option">
+                <input type="radio" name="language" value="system" checked />
+                <span class="option-text" data-i18n="settings.system">跟随系统</span>
+              </label>
 
-        <label class="option">
-          <input type="radio" name="language" value="zh" />
-          <span class="option-text" data-i18n="language.zh">中文</span>
-        </label>
+              <label class="option">
+                <input type="radio" name="language" value="zh" />
+                <span class="option-text" data-i18n="language.zh">中文</span>
+              </label>
 
-        <label class="option">
-          <input type="radio" name="language" value="en" />
-          <span class="option-text" data-i18n="language.en">English</span>
-        </label>
+              <label class="option">
+                <input type="radio" name="language" value="en" />
+                <span class="option-text" data-i18n="language.en">English</span>
+              </label>
+            </section>
 
-        <p class="note" data-i18n="settings.languageNote">
-          默认跟随系统语言，可随时切换；切换后立即生效。
-        </p>
-      </section>
+            <section class="card">
+              <h2 data-i18n="settings.size">大小</h2>
 
-      <section class="card">
-        <h2 data-i18n="settings.size">大小</h2>
+              <div class="size-row">
+                <input id="scale" type="range" min="60" max="150" step="1" value="100" />
+                <span id="scale-value" class="size-value">100%</span>
+              </div>
+            </section>
 
-        <div class="size-row">
-          <input id="scale" type="range" min="30" max="80" step="1" value="50" />
-          <span id="scale-value" class="size-value">50%</span>
+            <footer class="settings-footer">
+              <div class="footer-actions">
+                <button id="view-logs" class="logs-button" type="button" data-i18n="settings.viewLogs">
+                  查看日志
+                </button>
+                <button id="quit-app" class="logs-button" type="button" data-i18n="settings.quitApp">
+                  退出应用
+                </button>
+              </div>
+              <div class="footer-divider" aria-hidden="true"></div>
+              <div class="legal">
+                <p class="legal-copyright">Copyright ©KURO GAMES. All rights reserved.</p>
+                <p class="legal-email">
+                  <span data-i18n="settings.authorEmail">作者邮箱</span>
+                  <a href="mailto:Frankzhen2025@outlook.com">Frankzhen2025@outlook.com</a>
+                </p>
+                <p class="legal-links">
+                  <button
+                    id="open-licenses"
+                    class="legal-link"
+                    type="button"
+                    data-i18n="settings.openSourceLicenses"
+                  >
+                    开源组件声明
+                  </button>
+                  <span class="legal-separator" aria-hidden="true"></span>
+                  <button id="open-about" class="legal-link" type="button" data-i18n="settings.about">
+                    关于 Frank Tappo
+                  </button>
+                </p>
+              </div>
+            </footer>
+          </section>
+
+          <section
+            class="page"
+            id="page-characters"
+            role="tabpanel"
+            aria-labelledby="tab-characters"
+            hidden
+          >
+            <div class="character-preview">
+              <svg id="character-preview-svg" viewBox="0 0 300 300" role="img" aria-label="">
+                <defs>
+                  <clipPath id="character-preview-clip">
+                    <path d="M43.3 249.65A146 146 0 1 1 256.7 249.65A18 18 0 0 1 240.72 255.14A500 430.35 0 0 0 59.28 255.14A18 18 0 0 1 43.3 249.65Z" />
+                  </clipPath>
+                </defs>
+                <path
+                  class="preview-disc"
+                  d="M43.3 249.65A146 146 0 1 1 256.7 249.65A18 18 0 0 1 240.72 255.14A500 430.35 0 0 0 59.28 255.14A18 18 0 0 1 43.3 249.65Z"
+                  vector-effect="non-scaling-stroke"
+                />
+                <image
+                  id="character-preview"
+                  x="26.68"
+                  y="62.48"
+                  width="246.64"
+                  height="205.32"
+                  clip-path="url(#character-preview-clip)"
+                />
+              </svg>
+            </div>
+
+            <nav class="menu-bar" role="tablist" aria-label="角色菜单">
+              <button
+                class="menu-item"
+                id="menu-characters"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="menu-page-characters"
+                data-menu="characters"
+                data-i18n="settings.menu.characters"
+              >
+                角色
+              </button>
+              <button
+                class="menu-item"
+                id="menu-accessories"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="menu-page-accessories"
+                data-menu="accessories"
+                tabindex="-1"
+                data-i18n="settings.menu.accessories"
+              >
+                配件
+              </button>
+            </nav>
+
+            <div
+              class="menu-page"
+              id="menu-page-characters"
+              role="tabpanel"
+              aria-labelledby="menu-characters"
+            >
+              <div id="character-list" class="character-list"></div>
+            </div>
+
+            <div
+              class="menu-page"
+              id="menu-page-accessories"
+              role="tabpanel"
+              aria-labelledby="menu-accessories"
+              hidden
+            >
+              <p class="note" data-i18n="settings.accessoriesEmpty">
+                配件列表暂无
+              </p>
+            </div>
+          </section>
         </div>
+      </main>
+    </div>
 
-        <p class="note" data-i18n="settings.sizeHint">
-          拖动滑块即时预览，松手后保存；默认 50%。
+    <div
+      id="licenses-modal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="licenses-title"
+      hidden
+    >
+      <div class="modal-panel" tabindex="-1">
+        <button id="licenses-close" class="modal-close" type="button">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <defs>
+              <filter id="licenses-close-blur" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="1.5" />
+              </filter>
+            </defs>
+            <rect
+              x="10"
+              y="10"
+              width="28"
+              height="28"
+              rx="6"
+              transform="translate(0 2.5) rotate(45 24 24)"
+              fill="rgba(96, 52, 28, 0.28)"
+              stroke="rgba(96, 52, 28, 0.28)"
+              stroke-width="2"
+              filter="url(#licenses-close-blur)"
+            />
+            <rect
+              x="10"
+              y="10"
+              width="28"
+              height="28"
+              rx="6"
+              transform="rotate(45 24 24)"
+              fill="#a06040"
+              stroke="#7a4526"
+              stroke-width="2"
+            />
+            <path
+              d="M24 13.4l2.9 6.4 6.4 2.9-6.4 2.9-2.9 6.4-2.9-6.4-6.4-2.9 6.4-2.9z"
+              fill="#f8d090"
+            />
+          </svg>
+        </button>
+        <h2 id="licenses-title" class="modal-title" data-i18n="settings.openSourceLicenses">
+          开源组件声明
+        </h2>
+        <p class="modal-intro">
+          Frank Tappo is built with the open-source components listed below. We thank their
+          authors and communities for making this project possible.
         </p>
-      </section>
-
-      <div class="actions">
-        <button id="done" type="button" data-i18n="settings.done">完成</button>
+        <h3 class="modal-section">
+          <svg class="section-flower" viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              d="M8 2.2l1.5 4.3 4.3 1.5-4.3 1.5L8 13.8l-1.5-4.3-4.3-1.5 4.3-1.5z"
+              fill="#f2ddb3"
+            />
+          </svg>
+          Components
+        </h3>
+        <div id="license-list" class="license-list">
+          <table class="license-table">
+            <tbody id="license-rows"></tbody>
+          </table>
+        </div>
       </div>
-    </main>
+    </div>
+
+    <div
+      id="about-modal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="about-title"
+      hidden
+    >
+      <div class="modal-panel about-panel" tabindex="-1">
+        <button id="about-close" class="modal-close" type="button">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <defs>
+              <filter id="about-close-blur" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="1.5" />
+              </filter>
+            </defs>
+            <rect
+              x="10"
+              y="10"
+              width="28"
+              height="28"
+              rx="6"
+              transform="translate(0 2.5) rotate(45 24 24)"
+              fill="rgba(96, 52, 28, 0.28)"
+              stroke="rgba(96, 52, 28, 0.28)"
+              stroke-width="2"
+              filter="url(#about-close-blur)"
+            />
+            <rect
+              x="10"
+              y="10"
+              width="28"
+              height="28"
+              rx="6"
+              transform="rotate(45 24 24)"
+              fill="#a06040"
+              stroke="#7a4526"
+              stroke-width="2"
+            />
+            <path
+              d="M24 13.4l2.9 6.4 6.4 2.9-6.4 2.9-2.9 6.4-2.9-6.4-6.4-2.9 6.4-2.9z"
+              fill="#f8d090"
+            />
+          </svg>
+        </button>
+        <h2 id="about-title" class="modal-title" data-i18n="settings.about">关于 Frank Tappo</h2>
+        <p class="modal-intro" data-i18n="about.lead">
+          用与 Wuwa Tappo 相同的技术路线，做了一个 macOS 版本的简单实现。
+        </p>
+        <div class="about-body">
+          <p data-i18n="about.p1">
+            你敲键盘的时候，它会在角落里轻轻跟着敲；安静下来时，就眨眨眼，等你回来。
+          </p>
+          <p data-i18n="about.p2">
+            这是一个粉丝作品，并非官方版本。我们和你一样，期待 Wuwa Tappo 官方 macOS 版本上线。
+          </p>
+          <p data-i18n="about.p3">
+            作者借助 Qoder 一起探索了桌宠的实现方式——像素帧怎么对齐、眨眼和挥手怎么接上键盘、窗口怎么悄悄跟随，还有系统权限、打包和签名这些看不见的细节。
+          </p>
+        </div>
+        <p class="about-sign" data-i18n="about.made">Made with Qoder</p>
+      </div>
+    </div>
   </body>
 </html>

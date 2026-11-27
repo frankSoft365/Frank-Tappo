@@ -26,7 +26,13 @@ else
 fi
 
 launchctl remove "$LABEL" >/dev/null 2>&1 || true
-launchctl submit -l "$LABEL" -o /tmp/frank-out.log -e /tmp/frank-err.log -- "$BIN"
+# A submit that races with the label teardown is silently dropped by launchd,
+# so retry until the binary is actually up.
+for _ in 1 2 3; do
+  launchctl submit -l "$LABEL" -o /tmp/frank-out.log -e /tmp/frank-err.log -- "$BIN"
+  sleep 1
+  pgrep -f "target/debug/frank-tappo" >/dev/null && break
+done
 
 echo "Frank Tappo started (launchctl: $LABEL)"
 echo "Logs: tail -f /tmp/frank-err.log"
