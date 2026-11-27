@@ -309,3 +309,15 @@
 - 空闲 CPU 优化（M1 首要项，当前 release ≈ 4.2%）。
 - 单图导入、音效、内置形象精修。
 - Windows 真机验证（同一份构建流程）。
+
+## 2026-11-27
+
+### 0.2.1：「更多」窗口、整批提交与打包
+
+- 用户要求「commit一下，然后作为一个小的新版本」，并选定范围「全部积压一起提交」、版本「0.2.1 + 打包 DMG」。11-19 基线之后的整条积压一次性提交为 `023c1d4`（179 个文件，+7323/−647）：莫宁皮肤包与六帧、皮肤系统与 manifest 校验器、应用/托盘图标、Windows 原生拖动、设置选择器与 dev 水印、文档，以及本轮「更多」窗口。
+- 原设置窗口改为「更多」：880×640 透明整窗、28px 外圆角、6px 深棕底/右边框、176px 侧栏，左侧导航分「角色 / 设置」，托盘菜单提供「设置… / 角色…」直达路由；角色页为 5 列金色选中网格与缺口圆预览。设置页重做缩放滑杆（8px 渐变轨道 + 20px 奶油拇指，进度随值填充），底部左侧「查看日志」、右侧「退出应用」（新命令 `quit_app`）。
+- 页面顶部与窗口底之间留 2px 缝隙露出深棕，右上角改为与窗口内弧同心的椭圆过渡：page 圆角 `6px 22px 0 28px / 6px 26px 0 28px`、`margin-top: 2px`，缝隙沿弧线切向收敛为 0，右侧不再有整条描边。像素采样确认 2px 缝与收敛点。
+- 版本号六处同步升到 0.2.1（`package.json`、`package-lock.json`、`src-tauri/Cargo.toml`、`Cargo.lock`、`src-tauri/tauri.conf.json`）。`npx tauri build` 首轮在 DMG 阶段因残留临时挂载映像（`hdiutil: couldn't unmount "disk6"`）失败，卸载该构建临时卷后重跑成功。
+- release 包以 `APPLE_SIGNING_IDENTITY` 指定本机 Apple Development 证书重签：`Frank Tappo_0.2.1_aarch64.dmg` 4,699,425 字节、SHA-256 `8dbfd419…`，`hdiutil verify` VALID，`codesign --verify --deep --strict` 通过、TeamIdentifier `GML6M83HDT`、hardened runtime、arm64 单架构，Info.plist 版本 0.2.1。未替换 `/Applications/Frank Tappo.app`、未启动打包实例，开发实例与输入监控授权不受影响。
+- 按用户要求新建 GitHub 远端并首推：`origin` = `https://github.com/frankSoft365/Frank-Tappo.git`，`main` 已推送并建立跟踪。此前「不创建远程仓库、不推送」的约定以本次明确指令为准。
+- `cargo test --test skin_manifest` 仍是红门：moning 包 license 为 TODO（1 条），xigerika 包 54 条既有 fail（`left-hand*.png` 的 26 px 边缘混色与 (151,82) 像素），与 0.2.0 时相同，等他对素材归位与 manifest 三条口径拍板。Windows 侧仍待真机验收。
