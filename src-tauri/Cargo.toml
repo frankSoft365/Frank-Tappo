@@ -1,6 +1,6 @@
 [package]
 name = "frank-tappo"
-version = "0.2.1"
+version = "0.2.2"
 description = "Frank Tappo - a desktop pet that taps along with your typing"
 authors = ["Frank"]
 edition = "2024"
