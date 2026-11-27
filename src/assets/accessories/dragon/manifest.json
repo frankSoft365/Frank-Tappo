@@ -1,0 +1,12 @@
+{
+  "format": 0,
+  "id": "dragon",
+  "name": { "zh": "小翼龙·冷凝", "en": "Little Pterosaur · Condensation" },
+  "license": { "source": "示例配件素材由 Frank 提供，原画来源与再分发权限待确认", "redistribution_ok": false },
+  "kind": "side",
+  "side": "left",
+  "file": "dragon.png",
+  "width": 142,
+  "layer": "front",
+  "sha256": "1f3f6f68402f4036e3148b41b780ef59459e9833f297134d30aec151165db279"
+}

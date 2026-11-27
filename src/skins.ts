@@ -9,6 +9,8 @@ export type FrameKey = `${Hand}|${Eyes}`;
 
 type Anchor = { x: number; y: number };
 
+export type SideMount = { x: number; y: number; align: "bottom-left" | "bottom-right" };
+
 export type SkinManifest = {
   format: number;
   id: string;
@@ -18,6 +20,12 @@ export type SkinManifest = {
     width: number;
     drop: number;
     impact: { color: string; left: Anchor; right: Anchor };
+  };
+  mounts?: {
+    side?: {
+      left?: SideMount;
+      right?: SideMount;
+    };
   };
   frames: {
     state: { hand: Hand; eyes: Eyes };
@@ -117,6 +125,7 @@ export async function applySkin(id?: string | null): Promise<string | null> {
     const set = (name: string, value: string | number) => pet.style.setProperty(name, String(value));
     set("--skin-width", display.width);
     set("--skin-canvas-w", canvas.width);
+    set("--skin-canvas-h", canvas.height);
     set("--skin-drop", display.drop);
     set("--impact-left-x", display.impact.left.x);
     set("--impact-left-y", display.impact.left.y);
@@ -127,5 +136,11 @@ export async function applySkin(id?: string | null): Promise<string | null> {
 
   currentSkinId = pack.id;
   document.documentElement.dataset.skin = pack.id;
+  // Accessories hang off the active skin's mounts, so they re-place whenever this fires.
+  document.dispatchEvent(new CustomEvent<string>("tappo:skin", { detail: pack.id }));
   return pack.id;
+}
+
+export function getActiveSkin(): SkinPack | null {
+  return currentSkinId ? packs.get(currentSkinId) ?? null : null;
 }

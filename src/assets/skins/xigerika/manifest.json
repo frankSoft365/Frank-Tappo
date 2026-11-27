@@ -13,6 +13,11 @@
       "right": { "x": 66, "y": 301 }
     }
   },
+  "mounts": {
+    "side": {
+      "left": { "x": 96, "y": 79, "align": "bottom-left" }
+    }
+  },
   "regions": {
     "eyes": { "rows": [88, 116], "cols": [51, 128], "changed_px": 1493 },
     "hand_left": { "rows": [118, 163], "cols": [83, 118], "changed_px": 930 },

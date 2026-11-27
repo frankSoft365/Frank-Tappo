@@ -154,6 +154,32 @@ struct Anchor {
     y: usize,
 }
 
+/// 侧面配件挂点（2026-11-27）：画布坐标系，`x`/`y` 是配件锚角在画布里的位置，
+/// `align` 决定框的哪个角对准锚点。挂点只定位、不规定配件大小。
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Mounts {
+    #[serde(default)]
+    side: Option<SideMounts>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SideMounts {
+    #[serde(default)]
+    left: Option<Mount>,
+    #[serde(default)]
+    right: Option<Mount>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Mount {
+    x: usize,
+    y: usize,
+    align: String,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Manifest {
@@ -164,6 +190,8 @@ struct Manifest {
     canvas: Canvas,
     #[serde(default)]
     display: Option<Display>,
+    #[serde(default)]
+    mounts: Option<Mounts>,
     regions: Regions,
     palette: Palette,
     provenance: String,
@@ -378,6 +406,25 @@ fn validate(dir: &Path) -> Report {
             "manifest.license.source = {:?} 没写实：原画来源与再分发权限必须写在包里（redistribution_ok = {}）",
             manifest.license.source, manifest.license.redistribution_ok
         ));
+    }
+    if let Some(mounts) = &manifest.mounts {
+        if let Some(side) = &mounts.side {
+            for (label, mount) in [("left", &side.left), ("right", &side.right)] {
+                let Some(m) = mount else { continue };
+                if m.x > manifest.canvas.width || m.y > manifest.canvas.height {
+                    rep.fail(format!(
+                        "mounts.side.{label} 的挂点 ({}, {}) 超出画布 {}×{}：锚角必须落在画布坐标系内",
+                        m.x, m.y, manifest.canvas.width, manifest.canvas.height
+                    ));
+                }
+                if m.align != "bottom-left" && m.align != "bottom-right" {
+                    rep.fail(format!(
+                        "mounts.side.{label}.align = {:?} 只允许 bottom-left 或 bottom-right",
+                        m.align
+                    ));
+                }
+            }
+        }
     }
     match manifest.palette.mode.as_str() {
         "free" | "indexed" | "core_plus_antialias" => {}

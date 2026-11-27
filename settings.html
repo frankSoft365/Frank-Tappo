@@ -18,10 +18,9 @@
             id="tab-characters"
             type="button"
             role="tab"
-            aria-selected="false"
+            aria-selected="true"
             aria-controls="page-characters"
             data-page="characters"
-            tabindex="-1"
           >
             <svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true">
               <circle cx="8" cy="4.9" r="2.7" fill="currentColor" />
@@ -37,9 +36,10 @@
             id="tab-general"
             type="button"
             role="tab"
-            aria-selected="true"
+            aria-selected="false"
             aria-controls="page-general"
             data-page="general"
+            tabindex="-1"
           >
             <svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true">
               <g fill="currentColor">
@@ -111,7 +111,7 @@
           </button>
         </header>
         <div class="pages">
-          <section class="page" id="page-general" role="tabpanel" aria-labelledby="tab-general">
+          <section class="page" id="page-general" role="tabpanel" aria-labelledby="tab-general" hidden>
             <section class="card">
               <h2 data-i18n="settings.language">语言</h2>
 
@@ -135,8 +135,47 @@
               <h2 data-i18n="settings.size">大小</h2>
 
               <div class="size-row">
-                <input id="scale" type="range" min="60" max="150" step="1" value="100" />
+                <input id="scale" class="range" type="range" min="60" max="150" step="1" value="100" />
                 <span id="scale-value" class="size-value">100%</span>
+              </div>
+            </section>
+
+            <section class="card">
+              <h2 data-i18n="settings.pet">桌宠</h2>
+
+              <div class="option option-switch option-static">
+                <span class="option-text">
+                  <span id="drag-disabled-label" data-i18n="settings.disableDrag">禁用拖动</span>
+                  <small data-i18n="settings.disableDragNote">阻止桌宠移动</small>
+                </span>
+                <input
+                  id="drag-disabled"
+                  type="checkbox"
+                  role="switch"
+                  aria-labelledby="drag-disabled-label"
+                />
+              </div>
+
+              <div class="option option-switch option-static">
+                <span class="option-text">
+                  <span id="hide-pet-label" data-i18n="settings.hidePet">隐藏桌宠</span>
+                </span>
+                <input
+                  id="hide-pet"
+                  type="checkbox"
+                  role="switch"
+                  aria-labelledby="hide-pet-label"
+                />
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-label">
+                  <span data-i18n="settings.opacity">桌宠透明度</span>
+                  <span id="opacity-value" class="size-value">100%</span>
+                </div>
+                <div class="size-row">
+                  <input id="opacity" class="range" type="range" min="0" max="100" step="1" value="100" />
+                </div>
               </div>
             </section>
 
@@ -179,7 +218,6 @@
             id="page-characters"
             role="tabpanel"
             aria-labelledby="tab-characters"
-            hidden
           >
             <div class="character-preview">
               <svg id="character-preview-svg" viewBox="0 0 300 300" role="img" aria-label="">
@@ -200,6 +238,16 @@
                   width="246.64"
                   height="205.32"
                   clip-path="url(#character-preview-clip)"
+                />
+                <image
+                  id="character-preview-accessory"
+                  x="0"
+                  y="0"
+                  width="0"
+                  height="0"
+                  clip-path="url(#character-preview-clip)"
+                  aria-hidden="true"
+                  hidden
                 />
               </svg>
             </div>
@@ -248,7 +296,13 @@
               aria-labelledby="menu-accessories"
               hidden
             >
-              <p class="note" data-i18n="settings.accessoriesEmpty">
+              <div id="accessory-list" class="accessory-list"></div>
+              <p
+                id="accessories-empty"
+                class="note"
+                data-i18n="settings.accessoriesEmpty"
+                hidden
+              >
                 配件列表暂无
               </p>
             </div>

@@ -8,9 +8,17 @@ pub const SCALE_MIN: f64 = 0.24;
 pub const SCALE_MAX: f64 = 0.6;
 pub const SCALE_DEFAULT: f64 = 0.4;
 const SCALE_STEP: f64 = SCALE_DEFAULT / 100.0;
+pub const OPACITY_DEFAULT: f64 = 1.0;
 
 pub fn normalize_scale(scale: f64) -> f64 {
     (scale.clamp(SCALE_MIN, SCALE_MAX) / SCALE_STEP).round() * SCALE_STEP
+}
+
+pub fn normalize_opacity(opacity: f64) -> f64 {
+    if !opacity.is_finite() {
+        return OPACITY_DEFAULT;
+    }
+    (opacity.clamp(0.0, 1.0) * 100.0).round() / 100.0
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -19,8 +27,16 @@ pub struct Settings {
     pub language: String,
     #[serde(default = "default_skin")]
     pub skin: String,
+    #[serde(default)]
+    pub accessory: String,
     #[serde(default = "default_scale")]
     pub scale: f64,
+    #[serde(default)]
+    pub drag_disabled: bool,
+    #[serde(default)]
+    pub hidden: bool,
+    #[serde(default = "default_opacity")]
+    pub opacity: f64,
 }
 
 fn default_language() -> String {
@@ -35,12 +51,20 @@ fn default_scale() -> f64 {
     SCALE_DEFAULT
 }
 
+fn default_opacity() -> f64 {
+    OPACITY_DEFAULT
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
             language: default_language(),
             skin: default_skin(),
+            accessory: String::new(),
             scale: SCALE_DEFAULT,
+            drag_disabled: false,
+            hidden: false,
+            opacity: OPACITY_DEFAULT,
         }
     }
 }
@@ -50,9 +74,13 @@ pub struct SettingsView {
     pub language: String,
     pub resolved: String,
     pub skin: String,
+    pub accessory: String,
     pub scale: f64,
     pub scale_min: f64,
     pub scale_max: f64,
+    pub drag_disabled: bool,
+    pub hidden: bool,
+    pub opacity: f64,
 }
 
 pub fn system_language() -> &'static str {
@@ -75,9 +103,13 @@ pub fn view(settings: &Settings) -> SettingsView {
         language: settings.language.clone(),
         resolved: resolve(&settings.language).into(),
         skin: settings.skin.clone(),
+        accessory: settings.accessory.clone(),
         scale: normalize_scale(settings.scale),
         scale_min: SCALE_MIN,
         scale_max: SCALE_MAX,
+        drag_disabled: settings.drag_disabled,
+        hidden: settings.hidden,
+        opacity: normalize_opacity(settings.opacity),
     }
 }
 
@@ -87,6 +119,7 @@ pub fn load(app: &AppHandle) -> Settings {
         .and_then(|text| serde_json::from_str::<Settings>(&text).ok())
         .unwrap_or_default();
     settings.scale = normalize_scale(settings.scale);
+    settings.opacity = normalize_opacity(settings.opacity);
     settings
 }
 
@@ -118,6 +151,57 @@ mod tests {
         assert_eq!(view.scale, 0.4);
         assert_eq!(view.scale_min, 0.24);
         assert_eq!(view.scale_max, 0.6);
+        assert_eq!(view.accessory, "");
+        assert!(!view.drag_disabled);
+        assert!(!view.hidden);
+        assert_eq!(view.opacity, 1.0);
+    }
+
+    #[test]
+    fn pet_visibility_flags_and_opacity_survive_round_trip() {
+        let old: Settings =
+            serde_json::from_str(r#"{"language":"system","skin":"xigerika","scale":0.4}"#)
+                .unwrap();
+        assert!(!old.drag_disabled);
+        assert!(!old.hidden);
+        assert_eq!(old.opacity, 1.0);
+
+        let settings = Settings {
+            drag_disabled: true,
+            hidden: true,
+            opacity: 0.35,
+            ..Settings::default()
+        };
+        let saved = serde_json::to_string(&settings).unwrap();
+        let loaded: Settings = serde_json::from_str(&saved).unwrap();
+        assert!(loaded.drag_disabled);
+        assert!(loaded.hidden);
+        assert_eq!(view(&loaded).opacity, 0.35);
+    }
+
+    #[test]
+    fn opacity_is_clamped_to_percent_steps() {
+        assert_eq!(normalize_opacity(-0.5), 0.0);
+        assert_eq!(normalize_opacity(1.5), 1.0);
+        assert_eq!(normalize_opacity(0.734), 0.73);
+        assert_eq!(normalize_opacity(f64::NAN), 1.0);
+    }
+
+    #[test]
+    fn accessory_defaults_to_none_and_survives_round_trip() {
+        let old: Settings = serde_json::from_str(
+            r#"{"language":"system","skin":"xigerika","scale":0.4}"#,
+        )
+        .unwrap();
+        assert_eq!(view(&old).accessory, "");
+
+        let settings = Settings {
+            accessory: "dragon".into(),
+            ..Settings::default()
+        };
+        let saved = serde_json::to_string(&settings).unwrap();
+        let loaded: Settings = serde_json::from_str(&saved).unwrap();
+        assert_eq!(view(&loaded).accessory, "dragon");
     }
 
     #[test]
@@ -133,7 +217,9 @@ mod tests {
             let settings = Settings {
                 language: "system".into(),
                 skin: default_skin(),
+                accessory: String::new(),
                 scale,
+                ..Settings::default()
             };
             let saved = serde_json::to_string(&settings).unwrap();
             let loaded: Settings = serde_json::from_str(&saved).unwrap();

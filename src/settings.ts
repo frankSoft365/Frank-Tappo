@@ -4,6 +4,8 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { applyTranslations, resolveLanguage, translate } from "./i18n";
 import type { Language, LanguageSetting } from "./i18n";
+import { listAccessories } from "./accessories";
+import type { AccessoryEntry } from "./accessories";
 import { DEFAULT_SKIN_ID, listSkins } from "./skins";
 import type { SkinPack } from "./skins";
 
@@ -32,9 +34,13 @@ type SettingsView = {
   language: LanguageSetting;
   resolved: Language;
   skin: string;
+  accessory: string;
   scale: number;
   scale_min: number;
   scale_max: number;
+  drag_disabled: boolean;
+  hidden: boolean;
+  opacity: number;
 };
 
 type PageId = "general" | "characters";
@@ -44,6 +50,10 @@ const inputs = Array.from(
 );
 const scaleInput = document.querySelector<HTMLInputElement>("#scale")!;
 const scaleValue = document.querySelector<HTMLElement>("#scale-value")!;
+const dragDisabledInput = document.querySelector<HTMLInputElement>("#drag-disabled")!;
+const hidePetInput = document.querySelector<HTMLInputElement>("#hide-pet")!;
+const opacityInput = document.querySelector<HTMLInputElement>("#opacity")!;
+const opacityValue = document.querySelector<HTMLElement>("#opacity-value")!;
 const closeButton = document.querySelector<HTMLButtonElement>("#close")!;
 const licensesModal = document.querySelector<HTMLDivElement>("#licenses-modal")!;
 const licensesClose = document.querySelector<HTMLButtonElement>("#licenses-close")!;
@@ -60,7 +70,12 @@ const pages: Record<PageId, HTMLElement> = {
   characters: document.querySelector<HTMLElement>("#page-characters")!,
 };
 const characterList = document.querySelector<HTMLElement>("#character-list")!;
+const accessoryList = document.querySelector<HTMLElement>("#accessory-list")!;
+const accessoriesEmpty = document.querySelector<HTMLElement>("#accessories-empty")!;
 const characterPreview = document.querySelector<SVGImageElement>("#character-preview")!;
+const characterPreviewAccessory = document.querySelector<SVGImageElement>(
+  "#character-preview-accessory",
+)!;
 const characterPreviewSvg = document.querySelector<SVGSVGElement>("#character-preview-svg")!;
 const menuItems = Array.from(document.querySelectorAll<HTMLButtonElement>(".menu-item"));
 const menuPages: Record<string, HTMLElement> = {
@@ -72,14 +87,37 @@ let current: SettingsView = {
   language: "system",
   resolved: "en",
   skin: DEFAULT_SKIN_ID,
+  accessory: "",
   scale: DEFAULT_SCALE,
   scale_min: 0.24,
   scale_max: 0.6,
+  drag_disabled: false,
+  hidden: false,
+  opacity: 1,
 };
 let previewFrame: number | undefined;
 let pendingScale: { scale: number; save: boolean } | undefined;
 let scaleInFlight = false;
 let scaleEditing = false;
+
+// Mirrors the character image geometry in settings.html: a 197-wide canvas drawn at
+// 246.64, against the pet's 300-unit reference width.
+const PREVIEW = { x: 26.68, y: 62.48, width: 246.64, height: 205.32 };
+const PREVIEW_REFERENCE = 300;
+const accessoryRatios = new Map<string, number>();
+
+for (const entry of listAccessories()) {
+  const image = new Image();
+  image.src = entry.url;
+  void image
+    .decode()
+    .then(() => {
+      if (image.naturalWidth === 0) return;
+      accessoryRatios.set(entry.id, image.naturalHeight / image.naturalWidth);
+      if (equippedAccessoryId(current.accessory) === entry.id) renderPreviewAccessory();
+    })
+    .catch(() => {});
+}
 
 function percentage(scale: number) {
   return Math.round((scale / DEFAULT_SCALE) * 100);
@@ -89,11 +127,19 @@ function percent(scale: number) {
   return `${percentage(scale)}%`;
 }
 
+function updateRangeProgress(input: HTMLInputElement) {
+  const min = Number(input.min);
+  const max = Number(input.max);
+  const ratio = (input.valueAsNumber - min) / (max - min || 1);
+  input.style.setProperty("--range-progress", `${ratio * 100}%`);
+}
+
 function updateScaleProgress() {
-  const min = Number(scaleInput.min);
-  const max = Number(scaleInput.max);
-  const ratio = (scaleInput.valueAsNumber - min) / (max - min || 1);
-  scaleInput.style.setProperty("--scale-progress", `${ratio * 100}%`);
+  updateRangeProgress(scaleInput);
+}
+
+function updateOpacityProgress() {
+  updateRangeProgress(opacityInput);
 }
 
 function switchPage(page: PageId) {
@@ -130,6 +176,37 @@ function effectiveSkinId(skin: string) {
   if (packs.some((pack) => pack.id === skin)) return skin;
   if (packs.some((pack) => pack.id === DEFAULT_SKIN_ID)) return DEFAULT_SKIN_ID;
   return packs[0]?.id;
+}
+
+function renderPreviewAccessory() {
+  const active = effectiveSkinId(current.skin);
+  const pack = listSkins().find((item) => item.id === active);
+  const entry = listAccessories().find(
+    (item) => item.id === equippedAccessoryId(current.accessory),
+  );
+  const mount = pack && entry ? pack.manifest.mounts?.side?.[entry.side] : undefined;
+  if (!pack || !entry || !mount) {
+    characterPreviewAccessory.setAttribute("hidden", "");
+    return;
+  }
+  const scaleX = PREVIEW.width / pack.manifest.canvas.width;
+  const scaleY = PREVIEW.height / pack.manifest.canvas.height;
+  const width = (entry.width * PREVIEW.width) / PREVIEW_REFERENCE;
+  const height = width * (accessoryRatios.get(entry.id) ?? 1);
+  const anchorX = PREVIEW.x + mount.x * scaleX;
+  const x = mount.align === "bottom-right" ? anchorX - width : anchorX;
+  const y = PREVIEW.y + mount.y * scaleY - height;
+  characterPreviewAccessory.setAttribute("href", entry.url);
+  characterPreviewAccessory.setAttribute("x", String(x));
+  characterPreviewAccessory.setAttribute("y", String(y));
+  characterPreviewAccessory.setAttribute("width", String(width));
+  characterPreviewAccessory.setAttribute("height", String(height));
+  characterPreviewAccessory.removeAttribute("hidden");
+  if (entry.layer === "behind") {
+    characterPreview.before(characterPreviewAccessory);
+  } else {
+    characterPreview.after(characterPreviewAccessory);
+  }
 }
 
 function renderCharacters() {
@@ -170,6 +247,7 @@ function renderCharacters() {
       return button;
     }),
   );
+  renderPreviewAccessory();
 }
 
 async function chooseSkin(skin: string) {
@@ -184,6 +262,62 @@ async function chooseSkin(skin: string) {
   } catch (error) {
     console.warn("failed to set skin", error);
     renderCharacters();
+  }
+}
+
+function accessoryName(entry: AccessoryEntry, language: Language) {
+  const { zh, en } = entry.name;
+  if (language === "zh" && zh) return zh;
+  return en || zh || entry.id;
+}
+
+// An unknown saved id means "nothing equipped"; there is no default accessory.
+function equippedAccessoryId(accessory: string) {
+  return listAccessories().some((entry) => entry.id === accessory) ? accessory : "";
+}
+
+function renderAccessories() {
+  const entries = [...listAccessories()].sort((a, b) => a.id.localeCompare(b.id));
+  const equipped = equippedAccessoryId(current.accessory);
+  accessoryList.replaceChildren(
+    ...entries.map((entry) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "accessory";
+      button.setAttribute("aria-pressed", String(entry.id === equipped));
+      button.addEventListener("click", () => void chooseAccessory(entry.id));
+
+      const art = document.createElement("img");
+      art.className = "accessory-art";
+      art.src = entry.url;
+      art.alt = "";
+
+      const name = accessoryName(entry, current.resolved);
+      const label = document.createElement("span");
+      label.className = "accessory-name";
+      label.textContent = name;
+      label.title = name;
+
+      button.append(art, label);
+      return button;
+    }),
+  );
+  accessoriesEmpty.hidden = entries.length > 0;
+  renderPreviewAccessory();
+}
+
+async function chooseAccessory(id: string) {
+  const accessory = current.accessory === id ? "" : id;
+  if (!isTauri) {
+    current = { ...current, accessory };
+    renderAccessories();
+    return;
+  }
+  try {
+    render(await invoke<SettingsView>("set_accessory", { accessory }));
+  } catch (error) {
+    console.warn("failed to set accessory", error);
+    renderAccessories();
   }
 }
 
@@ -209,7 +343,65 @@ function render(view: SettingsView) {
     updateScaleProgress();
   }
 
+  dragDisabledInput.checked = view.drag_disabled;
+  hidePetInput.checked = view.hidden;
+  const opacityPercent = Math.round(view.opacity * 100);
+  opacityInput.value = String(opacityPercent);
+  opacityValue.textContent = `${opacityPercent}%`;
+  updateOpacityProgress();
+
   renderCharacters();
+  renderAccessories();
+}
+
+async function changeDragDisabled(disabled: boolean) {
+  if (!isTauri) {
+    render({ ...current, drag_disabled: disabled });
+    return;
+  }
+  try {
+    render(await invoke<SettingsView>("set_drag_disabled", { disabled }));
+  } catch (error) {
+    console.warn("failed to update dragging", error);
+    render(current);
+  }
+}
+
+async function changePetHidden(hidden: boolean) {
+  if (!isTauri) {
+    render({ ...current, hidden });
+    return;
+  }
+  try {
+    render(await invoke<SettingsView>("set_pet_hidden", { hidden }));
+  } catch (error) {
+    console.warn("failed to update pet visibility", error);
+    render(current);
+  }
+}
+
+function previewOpacity() {
+  const percent = opacityInput.valueAsNumber;
+  opacityValue.textContent = `${percent}%`;
+  updateOpacityProgress();
+  if (!isTauri) return;
+  void invoke("preview_opacity", { opacity: percent / 100 }).catch((error) =>
+    console.warn("failed to preview opacity", error),
+  );
+}
+
+async function saveOpacity() {
+  const opacity = opacityInput.valueAsNumber / 100;
+  if (!isTauri) {
+    render({ ...current, opacity });
+    return;
+  }
+  try {
+    render(await invoke<SettingsView>("set_opacity", { opacity }));
+  } catch (error) {
+    console.warn("failed to update opacity", error);
+    render(current);
+  }
 }
 
 async function changeLanguage(language: LanguageSetting) {
@@ -333,6 +525,13 @@ for (const item of menuItems) {
 
 scaleInput.addEventListener("input", previewScale);
 scaleInput.addEventListener("change", () => void saveScale());
+
+dragDisabledInput.addEventListener("change", () =>
+  void changeDragDisabled(dragDisabledInput.checked),
+);
+hidePetInput.addEventListener("change", () => void changePetHidden(hidePetInput.checked));
+opacityInput.addEventListener("input", previewOpacity);
+opacityInput.addEventListener("change", () => void saveOpacity());
 
 closeButton.addEventListener("click", () => {
   if (isTauri) {

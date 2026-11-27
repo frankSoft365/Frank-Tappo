@@ -374,6 +374,15 @@ async fn start_pet_drag(window: WebviewWindow, offset: LogicalPosition<f64>) -> 
     if !offset.x.is_finite() || !offset.y.is_finite() {
         return Err("invalid drag offset".into());
     }
+    if window
+        .state::<SettingsState>()
+        .0
+        .lock()
+        .unwrap()
+        .drag_disabled
+    {
+        return Ok(());
+    }
     #[cfg(target_os = "windows")]
     {
         let app = window.app_handle().clone();
@@ -833,6 +842,82 @@ fn set_skin(app: AppHandle, skin: String) -> Result<settings::SettingsView, Stri
     Ok(view)
 }
 
+#[tauri::command]
+fn set_accessory(app: AppHandle, accessory: String) -> Result<settings::SettingsView, String> {
+    let state = app.state::<SettingsState>();
+    let mut guard = state.0.lock().unwrap();
+    guard.accessory = accessory;
+    settings::save(&app, &guard)?;
+    let view = settings::view(&guard);
+    drop(guard);
+
+    let _ = app.emit("settings:changed", view.clone());
+    Ok(view)
+}
+
+#[tauri::command]
+fn set_drag_disabled(app: AppHandle, disabled: bool) -> Result<settings::SettingsView, String> {
+    let state = app.state::<SettingsState>();
+    let mut guard = state.0.lock().unwrap();
+    guard.drag_disabled = disabled;
+    settings::save(&app, &guard)?;
+    let view = settings::view(&guard);
+    drop(guard);
+
+    let _ = app.emit("settings:changed", view.clone());
+    Ok(view)
+}
+
+fn set_pet_hidden_state(app: &AppHandle, hidden: bool) -> Result<settings::SettingsView, String> {
+    let view = {
+        let state = app.state::<SettingsState>();
+        let mut guard = state.0.lock().unwrap();
+        guard.hidden = hidden;
+        settings::save(app, &guard)?;
+        settings::view(&guard)
+    };
+
+    if let Some(window) = app.get_webview_window("main") {
+        let result = if hidden { window.hide() } else { window.show() };
+        if let Err(error) = result {
+            eprintln!("[window] failed to set pet visibility: {error}");
+        }
+    }
+    refresh_tray(app);
+    let _ = app.emit("settings:changed", view.clone());
+    Ok(view)
+}
+
+#[tauri::command]
+fn set_pet_hidden(app: AppHandle, hidden: bool) -> Result<settings::SettingsView, String> {
+    set_pet_hidden_state(&app, hidden)
+}
+
+#[tauri::command]
+fn preview_opacity(app: AppHandle, opacity: f64) -> Result<(), String> {
+    let opacity = settings::normalize_opacity(opacity);
+    if let Some(window) = app.get_webview_window("main") {
+        window
+            .emit("pet:opacity", opacity)
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn set_opacity(app: AppHandle, opacity: f64) -> Result<settings::SettingsView, String> {
+    let opacity = settings::normalize_opacity(opacity);
+    let state = app.state::<SettingsState>();
+    let mut guard = state.0.lock().unwrap();
+    guard.opacity = opacity;
+    settings::save(&app, &guard)?;
+    let view = settings::view(&guard);
+    drop(guard);
+
+    let _ = app.emit("settings:changed", view.clone());
+    Ok(view)
+}
+
 fn set_click_through_enabled(app: &AppHandle, enabled: bool) {
     let state = app.state::<AppState>();
     state.click_through.store(enabled, Ordering::Relaxed);
@@ -1023,12 +1108,11 @@ fn build_settings_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
 }
 
 fn open_settings_window(app: &AppHandle, page: Option<&str>) {
+    let page = page.unwrap_or("characters");
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();
         let _ = window.set_focus();
-        if let Some(page) = page {
-            let _ = window.emit("settings:navigate", page);
-        }
+        let _ = window.emit("settings:navigate", page);
         return;
     }
     // Building a webview inside the tray menu callback blocks the first click,
@@ -1037,6 +1121,7 @@ fn open_settings_window(app: &AppHandle, page: Option<&str>) {
         Ok(window) => {
             let _ = window.show();
             let _ = window.set_focus();
+            let _ = window.emit("settings:navigate", page);
         }
         Err(error) => eprintln!("[settings] failed to open window: {error}"),
     }
@@ -1102,6 +1187,7 @@ pub fn run() {
             input::init_counter(app.handle())?;
             let settings = settings::load(app.handle());
             let initial_scale = settings.scale;
+            let initial_hidden = settings.hidden;
             app.manage(SettingsState(Mutex::new(settings)));
 
             let language = resolved_language(app.handle());
@@ -1121,17 +1207,16 @@ pub fn run() {
                     }
                     "show_hide" => {
                         if let Some(window) = app.get_webview_window("main") {
-                            let result = window.is_visible().and_then(|visible| {
-                                if visible {
-                                    window.hide()
-                                } else {
-                                    window.show()
+                            match window.is_visible() {
+                                Ok(visible) => {
+                                    if let Err(error) = set_pet_hidden_state(app, visible) {
+                                        eprintln!(
+                                            "[window] failed to toggle pet visibility: {error}"
+                                        );
+                                    }
                                 }
-                            });
-                            match result {
-                                Ok(()) => refresh_tray(app),
                                 Err(error) => {
-                                    eprintln!("[window] failed to toggle pet visibility: {error}")
+                                    eprintln!("[window] failed to read pet visibility: {error}")
                                 }
                             }
                         }
@@ -1189,6 +1274,17 @@ pub fn run() {
                 eprintln!("[settings] failed to preload window: {error}");
             }
 
+            // The main window starts hidden so a persisted "hide pet" does not flash
+            // on screen during startup; showing it also refreshes the tray labels.
+            if !initial_hidden {
+                if let Some(window) = app.get_webview_window("main") {
+                    if let Err(error) = window.show() {
+                        eprintln!("[window] failed to show pet: {error}");
+                    }
+                }
+            }
+            refresh_tray(app.handle());
+
             input::spawn_gamepad_listener(app.handle().clone());
             ensure_input_listener(app.handle());
             Ok(())
@@ -1203,6 +1299,11 @@ pub fn run() {
             get_windows_pet_canvas,
             set_language,
             set_skin,
+            set_accessory,
+            set_drag_disabled,
+            set_pet_hidden,
+            preview_opacity,
+            set_opacity,
             preview_scale,
             set_scale,
             uses_native_pet_drag,

@@ -3,6 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 
 import { applyTranslations, resolveLanguage, translate } from "./i18n";
 import type { Language, LanguageSetting } from "./i18n";
+import { initAccessories, equipAccessory } from "./accessories";
 import { applySkin, DEFAULT_SKIN_ID } from "./skins";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
@@ -11,6 +12,8 @@ if (import.meta.env.DEV) {
 }
 // Dev override, e.g. /?skin=moning — wins over the saved setting for this page load.
 const skinOverride = new URLSearchParams(location.search).get("skin");
+// Dev override, e.g. /?accessory=dragon — accessories are off by default.
+const accessoryOverride = new URLSearchParams(location.search).get("accessory");
 
 const banner = document.querySelector<HTMLElement>("#banner")!;
 const bannerBtn = document.querySelector<HTMLButtonElement>("#banner-btn")!;
@@ -26,6 +29,7 @@ const impact = document.querySelector<SVGSVGElement>("#tap-impact")!;
 const counter = document.querySelector<HTMLElement>("#tap-count")!;
 
 // Never show an empty stage: apply the fallback pack while the saved setting loads.
+initAccessories();
 void applySkin(skinOverride ?? DEFAULT_SKIN_ID);
 
 let impactAnimation: Animation | undefined;
@@ -197,7 +201,22 @@ type SettingsView = {
   language: LanguageSetting;
   resolved: Language;
   skin: string;
+  accessory: string;
+  drag_disabled: boolean;
+  hidden: boolean;
+  opacity: number;
 };
+
+let dragDisabled = false;
+
+function setPetOpacity(opacity: number) {
+  document.documentElement.style.setProperty("--pet-opacity", String(opacity));
+}
+
+function setDragDisabled(disabled: boolean) {
+  dragDisabled = disabled;
+  document.documentElement.classList.toggle("drag-disabled", disabled);
+}
 
 function applyLanguage(view: Pick<SettingsView, "language" | "resolved">) {
   applyTranslations(document, view.resolved);
@@ -211,6 +230,9 @@ function applyLanguage(view: Pick<SettingsView, "language" | "resolved">) {
 
 function applySettingsView(view: SettingsView) {
   applyLanguage(view);
+  setDragDisabled(view.drag_disabled);
+  setPetOpacity(view.opacity);
+  equipAccessory(accessoryOverride ?? view.accessory);
   void applySkin(skinOverride ?? view.skin);
 }
 
@@ -323,6 +345,7 @@ if (isTauri) {
   pet.addEventListener("pointerdown", (event) => {
     if (
       event.button !== 0 ||
+      dragDisabled ||
       drag ||
       nativeDrag === undefined ||
       nativeDragPending ||
@@ -407,6 +430,7 @@ if (isTauri) {
   });
 
   listen<SettingsView>("settings:changed", (event) => applySettingsView(event.payload));
+  listen<number>("pet:opacity", (event) => setPetOpacity(event.payload));
 
   void refreshSettings();
   void refreshPermission();
@@ -414,4 +438,5 @@ if (isTauri) {
   window.addEventListener("focus", () => void refreshPermission());
 } else {
   applyLanguage({ language: "system", resolved: resolveLanguage("system") });
+  equipAccessory(accessoryOverride);
 }

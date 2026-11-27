@@ -18,12 +18,19 @@ body:active {
   cursor: grabbing;
 }
 
+html.drag-disabled,
+html.drag-disabled body,
+html.drag-disabled body:active {
+  cursor: default;
+}
+
 #pet {
   --pet-unit: calc(100vh / 392);
   /* Per-skin runtime numbers; src/skins.ts overwrites these from the active pack's
      manifest. The defaults repeat the xigerika pack so the page still renders without JS. */
   --skin-width: 300;
   --skin-canvas-w: 197;
+  --skin-canvas-h: 164;
   --skin-drop: 12;
   --impact-left-x: 138;
   --impact-left-y: 312;
@@ -37,6 +44,7 @@ body:active {
   width: 100%;
   height: 100%;
   padding: 0 calc(16 * var(--pet-unit)) calc(22 * var(--pet-unit));
+  opacity: var(--pet-opacity, 1);
 
   /* The lowered arm fills --skin-drop rows under the body's crop line. Bottom-aligning
      that canvas would lift the body off the counter, so the art drops by exactly those
@@ -128,9 +136,33 @@ body:active {
   visibility: visible;
 }
 
+/* Static side accessory. The mount is a canvas-coordinate anchor: x is the frame's left
+   edge, y is the row whose bottom the accessory sits on (the canvas is bottom-aligned in
+   the stage, minus the drop rows). The accessory declares its width against a 300u-wide
+   character, so it scales with skins that render the character larger or smaller. */
+#side-accessory {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--acc-x, 0) * var(--skin-width) / var(--skin-canvas-w) * var(--pet-unit));
+  bottom: calc(
+    (var(--skin-canvas-h) - var(--skin-drop) - var(--acc-y, 0)) * var(--skin-width) / var(--skin-canvas-w) * var(--pet-unit)
+  );
+  width: calc(var(--acc-width, 0) * var(--skin-width) / 300 * var(--pet-unit));
+  height: auto;
+  pointer-events: none;
+}
+
+#side-accessory[data-align="bottom-right"] {
+  transform: translateX(-100%);
+}
+
+#side-accessory[data-layer="behind"] {
+  z-index: -1;
+}
+
 #tap-impact {
   position: absolute;
-  z-index: 1;
+  z-index: 3;
   left: calc(var(--impact-left-x) * var(--pet-unit));
   top: calc(var(--impact-left-y) * var(--pet-unit));
   width: calc(40 * var(--pet-unit));

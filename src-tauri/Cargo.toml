@@ -34,8 +34,8 @@ windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Graph
 rdev = "0.5"
 
 [dev-dependencies]
-# 皮肤包校验器（tests/skin_manifest.rs）用。两者都已是 tauri 的传递依赖、
-# 版本在 Cargo.lock 里固定，用 `=` 锁死避免解析出新版本；测试依赖不进发布二进制。
+# 皮肤/配件包校验器（tests/skin_manifest.rs、tests/accessory_manifest.rs）用。两者都已是
+# tauri 的传递依赖、版本在 Cargo.lock 里固定，用 `=` 锁死避免解析出新版本；测试依赖不进发布二进制。
 png = "=0.18.1"
 sha2 = "=0.10.9"
 
