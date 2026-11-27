@@ -184,6 +184,10 @@ body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Let the scrollbar sit in the cream margin at the window edge instead of
+     hugging the cards; the padding keeps the page's content width unchanged. */
+  margin-right: -20px;
+  padding-right: 20px;
 }
 
 .page[hidden] {
