@@ -8,16 +8,17 @@
 | --- | --- |
 | ![西格莉卡](./src/assets/skins/xigerika/default.png) | ![莫宁](./src/assets/skins/moning/default.png) |
 
-- 状态：**0.2.1**（2026-11-27）；macOS Apple Silicon 已打包，Windows 待本机构建与实机验收
+- 状态：**0.2.2**（2026-11-27）；macOS Apple Silicon 已打包，Windows 待本机构建与实机验收
 - 目标平台：Windows 10/11、macOS 12+（Apple Silicon；Intel 未构建验证）
 - 仓库：[github.com/frankSoft365/Frank-Tappo](https://github.com/frankSoft365/Frank-Tappo)
 - 文档：[产品需求 PRD](./PRD.md) · [皮肤包契约](./docs/skin-manifest.md) · [皮肤帧流程](./docs/skin-frames-workflow.md) · [开发日志](./docs/dev-log.md) · [M0 技术验证（历史）](./docs/M0-technical-verification.md)
 
-## 0.2.1 试用与打包
+## 0.2.2 试用与打包
 
 ### Apple Silicon Mac
 
-- 安装包：`src-tauri/target/release/bundle/dmg/Frank Tappo_0.2.1_aarch64.dmg`（4,699,425 字节，SHA-256 `8dbfd4194cd88020d4c851bcb9897ccffb37d533a4b5ba6277b2bf1b2941edd8`），仅适用于M系列芯片Mac。
+- 安装包：`src-tauri/target/release/bundle/dmg/Frank Tappo_0.2.2_aarch64.dmg`（4,721,772 字节，SHA-256 `ad07df8c5b85e44dad5ea6e4aee4fa776499d863062796e098eddc606cf6a49a`），仅适用于M系列芯片Mac。
+- GitHub Release：[v0.2.2](https://github.com/frankSoft365/Frank-Tappo/releases/tag/v0.2.2)（DMG 资产同名）。
 - 打开DMG，将应用拖到“应用程序”后启动。首次使用在系统设置的“隐私与安全性 → 输入监控”中允许Frank Tappo，然后从托盘退出并重新打开。
 - 当前使用Apple Development开发签名，未做Developer ID分发签名或Apple公证。本机实测：给解包后的应用加上 `com.apple.quarantine` 再评估，`spctl -a -t exec` 直接返回 `rejected`（普通打开和右键打开两种上下文都是），所以别的Mac上“仍要打开”流程不一定出现。确认安装包来自可信来源后，先拖进“应用程序”，再执行 `xattr -dr com.apple.quarantine "/Applications/Frank Tappo.app"` 去掉隔离属性即可正常启动；不要关闭系统安全检查，也不要长期跳过签名校验。
 - 不要同时运行开发实例和安装版，两者共享同一设置与累计计数文件。退出应使用托盘“退出”，保证最后的计数保存。

@@ -321,3 +321,11 @@
 - release 包以 `APPLE_SIGNING_IDENTITY` 指定本机 Apple Development 证书重签：`Frank Tappo_0.2.1_aarch64.dmg` 4,699,425 字节、SHA-256 `8dbfd419…`，`hdiutil verify` VALID，`codesign --verify --deep --strict` 通过、TeamIdentifier `GML6M83HDT`、hardened runtime、arm64 单架构，Info.plist 版本 0.2.1。未替换 `/Applications/Frank Tappo.app`、未启动打包实例，开发实例与输入监控授权不受影响。
 - 按用户要求新建 GitHub 远端并首推：`origin` = `https://github.com/frankSoft365/Frank-Tappo.git`，`main` 已推送并建立跟踪。此前「不创建远程仓库、不推送」的约定以本次明确指令为准。
 - `cargo test --test skin_manifest` 仍是红门：moning 包 license 为 TODO（1 条），xigerika 包 54 条既有 fail（`left-hand*.png` 的 26 px 边缘混色与 (151,82) 像素），与 0.2.0 时相同，等他对素材归位与 manifest 三条口径拍板。Windows 侧仍待真机验收。
+
+### 0.2.2：桌宠设置、侧面配件与发布
+
+- 用户要求「在 GitHub 上发布这个版本，版本号加 1」，版本号六处同步升到 0.2.2（`package.json`、`package-lock.json`、`src-tauri/Cargo.toml`、`Cargo.lock`、`src-tauri/tauri.conf.json`）。
+- 本轮内容：「更多」窗口新增桌宠卡片（禁用拖动、隐藏桌宠、透明度 0–100%，松手保存）；侧面配件系统（小翼龙·冷凝，默认不装备，按皮肤挂点定位、跨角色继承）；齿轮入口首次启动默认角色页、关窗再开继承上次页面；两个 toggle 行只有开关本身可点、整行不再悬停；设置页滚动条移到右侧奶油留白（卡片到滚动条 30px）。对应提交 `68858e5`、`47b50d4`。
+- release 包用同一 Apple Development 证书重签：`Frank Tappo_0.2.2_aarch64.dmg` 4,721,772 字节、SHA-256 `ad07df8c5b85e44dad5ea6e4aee4fa776499d863062796e098eddc606cf6a49a`，`hdiutil verify` VALID、`codesign --verify --deep --strict` 通过、Info.plist 版本 0.2.2。
+- 发布 GitHub Release `v0.2.2` 并附 DMG 资产；本机用该资产替换 `/Applications/Frank Tappo.app`，替换前备份 `counter.json`，安装后点击总数保持不变。
+- Windows 全屏游戏不计数：现状是 rdev 的 `WH_KEYBOARD_LL` / `WH_MOUSE_LL` 全局低级钩子，已定位可能分支（游戏提权触发 UIPI、反作弊拦截、钩子超时被静默移除）并给出验证清单，待真机确认后再决定是否改用 Raw Input。
