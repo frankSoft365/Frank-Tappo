@@ -329,3 +329,14 @@
 - release 包用同一 Apple Development 证书重签：`Frank Tappo_0.2.2_aarch64.dmg` 4,721,772 字节、SHA-256 `ad07df8c5b85e44dad5ea6e4aee4fa776499d863062796e098eddc606cf6a49a`，`hdiutil verify` VALID、`codesign --verify --deep --strict` 通过、Info.plist 版本 0.2.2。
 - 发布 GitHub Release `v0.2.2` 并附 DMG 资产；本机用该资产替换 `/Applications/Frank Tappo.app`，替换前备份 `counter.json`，安装后点击总数保持不变。
 - Windows 全屏游戏不计数：现状是 rdev 的 `WH_KEYBOARD_LL` / `WH_MOUSE_LL` 全局低级钩子，已定位可能分支（游戏提权触发 UIPI、反作弊拦截、钩子超时被静默移除）并给出验证清单，待真机确认后再决定是否改用 Raw Input。
+
+## 2026-11-28
+
+### Windows 缩放颤抖诊断（补记）
+
+- 本条为补记：截至 2026-11-21 该项只完成诊断、未动代码，三个候选方案里推荐 A，用户尚未拍板。补记目的是让 Windows 真机验证前上下文随仓库走，不代表已有 Windows 实机证据。
+- macOS 侧正解（已实测）：固定 392×392 网页画布，窗口只当整数包围盒，用 `NSWindow.setFrame_display` 一次事务同时提交尺寸与位置，量化发生在用户看不见的地方；用户 2026-11-20 确认「挺好，丝滑了」。
+- Windows 根因（代码级已确认）：同一个变换被拆给两条提交路径——`SetWindowRgn(bRedraw=1)` + `SetWindowPos` 是整数物理像素、主进程内立即生效；承载小数的补偿 `--canvas-scale/--canvas-x/--canvas-y` 经 `emit("pet:windows-canvas")` 异步送到进程外的 WebView2 渲染器、下一帧才生效。内部步长 0.004（≈1.568 逻辑 px，125/150/200% DPI 下 2–3 物理 px）、每个 rAF 一步，每帧显示「上一步的补偿 + 这一步的几何」，误差符号交替，表现为抖动。
+- 两个尚未在真机取证的嫌疑（不作结论）：① `apply_canvas` 用 `GetDpiForWindow(hwnd)`，而锚点计算用 Tauri 的 `window.scale_factor()`，两者可能不同；② Chromium 的设备像素栅格吸附 / 重栅格化启发式（`cc::Layer::IsSnappedToPixelGridInTarget`）。
+- 候选方案：A = 缩放手势期间冻结 OS 几何，每步只改 CSS，松手才提交精确 frame 并收缩 region；手势中 region 只增不减，Esc/失焦/取消要有兜底收尾，同时加一次性逐步采样日志（原生 rect、CSS 变量、渲染器帧时间戳）验证上述两条嫌疑——推荐；B = 等渲染器 ack 再执行原生移动（一致但晚一帧）；C = Windows 上改成自绘（DirectComposition 小数 visual），彻底消除拆分但等于换渲染后端。
+- 本质结论：同一个变换不能交给两个提交路径 / 两个帧时钟；平台对「尺寸」和「缩放」的精度预期不同——macOS 只把窗口原点整数化，Windows 是物理像素网格、无 API 承载非整数窗口尺寸，所以 WebView 方案在 Windows 上必须绕开原生 resize。
