@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { getVersion } from "@tauri-apps/api/app";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { applyTranslations, resolveLanguage, translate } from "./i18n";
@@ -14,6 +15,11 @@ if (import.meta.env.DEV) {
   document.documentElement.classList.add("dev-build");
 }
 const DEFAULT_SCALE = 0.4;
+const FALLBACK_VERSION = "0.2.2";
+// GitHub's unauthenticated API is rate-limited per IP; the raw manifest is CDN-served.
+const VERSION_MANIFEST_URL =
+  "https://raw.githubusercontent.com/frankSoft365/Frank-Tappo/main/package.json";
+const RELEASES_URL = "https://github.com/frankSoft365/Frank-Tappo/releases/latest";
 
 // The window gets hidden while the cursor still rests on the close button, and
 // WebKit keeps that hover state frozen until the pointer moves again; pin the
@@ -54,6 +60,11 @@ const dragDisabledInput = document.querySelector<HTMLInputElement>("#drag-disabl
 const hidePetInput = document.querySelector<HTMLInputElement>("#hide-pet")!;
 const opacityInput = document.querySelector<HTMLInputElement>("#opacity")!;
 const opacityValue = document.querySelector<HTMLElement>("#opacity-value")!;
+const currentVersion = document.querySelector<HTMLElement>("#current-version")!;
+const checkUpdateButton = document.querySelector<HTMLButtonElement>("#check-update")!;
+const updateStatus = document.querySelector<HTMLElement>("#update-status")!;
+const updateStatusText = document.querySelector<HTMLElement>("#update-status-text")!;
+const updateSpinner = updateStatus.querySelector<HTMLElement>(".update-spinner")!;
 const closeButton = document.querySelector<HTMLButtonElement>("#close")!;
 const licensesModal = document.querySelector<HTMLDivElement>("#licenses-modal")!;
 const licensesClose = document.querySelector<HTMLButtonElement>("#licenses-close")!;
@@ -99,6 +110,9 @@ let previewFrame: number | undefined;
 let pendingScale: { scale: number; save: boolean } | undefined;
 let scaleInFlight = false;
 let scaleEditing = false;
+let appVersion = FALLBACK_VERSION;
+let updateState: "idle" | "checking" | "latest" | "available" | "error" = "idle";
+let availableVersion = "";
 
 // Mirrors the character image geometry in settings.html: a 197-wide canvas drawn at
 // 246.64, against the pet's 300-unit reference width.
@@ -321,6 +335,100 @@ async function chooseAccessory(id: string) {
   }
 }
 
+function displayVersion(version: string) {
+  const trimmed = version.trim();
+  return trimmed.startsWith("v") ? trimmed : `v${trimmed}`;
+}
+
+function versionParts(version: string): number[] | null {
+  const match = /^v?(\d+)\.(\d+)\.(\d+)/i.exec(version.trim());
+  if (!match) return null;
+  return [Number(match[1]), Number(match[2]), Number(match[3])];
+}
+
+function isNewerVersion(latest: number[], currentParts: number[]) {
+  for (let index = 0; index < 3; index += 1) {
+    if (latest[index] !== currentParts[index]) {
+      return latest[index] > currentParts[index];
+    }
+  }
+  return false;
+}
+
+function updateMessage(key: string, version: string) {
+  return translate(current.resolved, key).replace("{version}", displayVersion(version));
+}
+
+function renderUpdate() {
+  const language = current.resolved;
+  checkUpdateButton.disabled = updateState === "checking";
+  checkUpdateButton.textContent = translate(
+    language,
+    updateState === "available" ? "settings.viewUpdate" : "settings.checkUpdate",
+  );
+  updateStatus.hidden = updateState === "idle";
+  updateSpinner.hidden = updateState !== "checking";
+  if (updateState === "checking") {
+    updateStatusText.textContent = translate(language, "settings.checkingUpdate");
+  } else if (updateState === "latest") {
+    updateStatusText.textContent = updateMessage("settings.upToDate", appVersion);
+  } else if (updateState === "available") {
+    updateStatusText.textContent = updateMessage("settings.updateAvailable", availableVersion);
+  } else if (updateState === "error") {
+    updateStatusText.textContent = translate(language, "settings.checkFailed");
+  } else {
+    updateStatusText.textContent = "";
+  }
+}
+
+async function fetchLatestVersion() {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(VERSION_MANIFEST_URL, {
+      cache: "no-store",
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) throw new Error(`version manifest returned ${response.status}`);
+    const manifest: unknown = await response.json();
+    if (
+      typeof manifest !== "object" ||
+      manifest === null ||
+      typeof (manifest as { version?: unknown }).version !== "string"
+    ) {
+      throw new Error("invalid version manifest");
+    }
+    return (manifest as { version: string }).version.trim();
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+async function checkForUpdates() {
+  if (updateState === "checking") return;
+  updateState = "checking";
+  availableVersion = "";
+  renderUpdate();
+  try {
+    let latestVersion = appVersion;
+    if (isTauri) {
+      latestVersion = await fetchLatestVersion();
+    } else {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 650));
+    }
+    const latestParts = versionParts(latestVersion);
+    const currentParts = versionParts(appVersion);
+    if (!latestParts || !currentParts) throw new Error("invalid app version");
+    updateState = isNewerVersion(latestParts, currentParts) ? "available" : "latest";
+    if (updateState === "available") availableVersion = latestVersion;
+  } catch (error) {
+    console.warn("failed to check for updates", error);
+    updateState = "error";
+  }
+  renderUpdate();
+}
+
 function render(view: SettingsView) {
   current = view;
   applyTranslations(document, view.resolved);
@@ -352,6 +460,7 @@ function render(view: SettingsView) {
 
   renderCharacters();
   renderAccessories();
+  renderUpdate();
 }
 
 async function changeDragDisabled(disabled: boolean) {
@@ -533,6 +642,20 @@ hidePetInput.addEventListener("change", () => void changePetHidden(hidePetInput.
 opacityInput.addEventListener("input", previewOpacity);
 opacityInput.addEventListener("change", () => void saveOpacity());
 
+checkUpdateButton.addEventListener("click", () => {
+  if (updateState === "available") {
+    if (isTauri) {
+      void invoke("open_latest_release").catch((error) =>
+        console.warn("failed to open release page", error),
+      );
+    } else {
+      window.open(RELEASES_URL, "_blank", "noopener");
+    }
+    return;
+  }
+  void checkForUpdates();
+});
+
 closeButton.addEventListener("click", () => {
   if (isTauri) {
     void getCurrentWindow().close();
@@ -630,6 +753,15 @@ document.addEventListener("keydown", (event) => {
 });
 
 async function init() {
+  if (isTauri) {
+    try {
+      appVersion = await getVersion();
+    } catch (error) {
+      console.warn("failed to read app version", error);
+    }
+  }
+  currentVersion.textContent = displayVersion(appVersion);
+  renderUpdate();
   if (!isTauri) {
     render({ ...current, language: "system", resolved: resolveLanguage("system") });
     return;

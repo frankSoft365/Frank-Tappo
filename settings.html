@@ -179,6 +179,20 @@
               </div>
             </section>
 
+            <section class="card update-card">
+              <div class="update-row">
+                <span class="update-label">
+                  <span data-i18n="settings.currentVersion">当前版本</span>
+                  <span id="current-version" class="update-version">v0.2.2</span>
+                </span>
+                <button id="check-update" class="update-button" type="button">检查更新</button>
+              </div>
+              <p id="update-status" class="update-status" role="status" aria-live="polite" hidden>
+                <span class="update-spinner" aria-hidden="true"></span>
+                <span id="update-status-text"></span>
+              </p>
+            </section>
+
             <footer class="settings-footer">
               <div class="footer-actions">
                 <button id="view-logs" class="logs-button" type="button" data-i18n="settings.viewLogs">

@@ -1062,7 +1062,15 @@ fn reveal_log_file(app: AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 fn open_author_email() -> Result<(), String> {
-    let url = "mailto:Frankzhen2025@outlook.com";
+    open_external_url("mailto:Frankzhen2025@outlook.com")
+}
+
+#[tauri::command]
+fn open_latest_release() -> Result<(), String> {
+    open_external_url("https://github.com/frankSoft365/Frank-Tappo/releases/latest")
+}
+
+fn open_external_url(url: &str) -> Result<(), String> {
     #[cfg(target_os = "macos")]
     let mut command = std::process::Command::new("open");
     #[cfg(target_os = "windows")]
@@ -1314,6 +1322,7 @@ pub fn run() {
             toggle_settings_window,
             reveal_log_file,
             open_author_email,
+            open_latest_release,
             quit_app
         ])
         .build(tauri::generate_context!())
